@@ -1,0 +1,79 @@
+@font-face {
+    font-family: "TT Norms Pro Normal";
+    src: url(../fonts/Fontspring-DEMO-tt_norms_pro_normal.otf);
+  }
+
+body {
+    overflow-x: hidden;
+  }
+  
+  .wrap.transition-enabled {
+    /* transition: top 1s ease, transform 1s ease; Smooth transition */
+  }
+  
+  .wrap.search-top {
+    /* top: 0px; Fixed spacing from the top */
+    /* transform: translate(0, 0); Maintain horizontal centering */
+  }
+
+.divONE {
+    box-sizing: border-box;
+    flex: 1 1 100%;
+    text-align: center;
+    margin: 10px;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+    --padding: 14px;
+    width: 40vw;
+    padding: var(--padding);
+    border-radius: 28px;
+    background: #f6f6f6;
+    transition: background 0.25s, box-shadow 0.25s; /* Add transition */
+}
+
+.search:focus-within {
+    background: #f1f1f1;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 1);
+}
+
+.search-input {
+    font-size: 16px;
+    font-family: 'TT Norms Pro Normal';
+    color: #333333;
+    margin-left: 14px;
+    outline: none;
+    border: none;
+    background: transparent;
+    flex: 1;
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Show ellipsis for overflow text */
+}
+
+.search-input::placeholder {
+    color: rgba(0, 0, 0, 0.25);
+}
+  
+.search-icon, .clear-icon {
+    color: rgba(0, 0, 0, 0.25);
+    font-size: 20px; /* Set the size for both icons */
+    min-width: 20px;  /* Ensure the icons have a minimum size */
+    min-height: 20px; /* Ensure the icons have a minimum size */
+    cursor: pointer; /* Make them clickable */
+}
+  
+.clear-icon {
+    margin-left: 10px; /* Add some space between the input and the clear icon */
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="search"]::-moz-search-cancel-button {
+    display: none;
+}
