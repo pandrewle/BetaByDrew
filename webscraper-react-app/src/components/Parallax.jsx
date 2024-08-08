@@ -1,13 +1,16 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useContext } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import Hero from "../components/Hero";
-import NavBar from "../components/navbar";
+import { SearchSubmitContext, AnimationContext } from "./AppContext";
+gsap.registerPlugin(useGSAP);
 
 function Parallax() {
   const [background, setBackground] = useState(20);
-  const [searchSubmitted, setSearchSubmitted] = useState(false);
-  gsap.registerPlugin(useGSAP);
+  const { animationComplete, setAnimationComplete } =
+    useContext(AnimationContext);
+  const { searchSubmitted, setSearchSubmitted } =
+    useContext(SearchSubmitContext);
 
   const parallaxRef = useRef(null);
   const mountain3 = useRef(null);
@@ -19,64 +22,82 @@ function Parallax() {
   const stars = useRef(null);
   const sun = useRef(null);
   const copy = useRef(null);
-  const nav = useRef(null);
 
   useGSAP((context, contextSafe) => {
     // const onLoad = contextSafe(() => {
     const tl = gsap.timeline({
       defaults: { duration: 3 },
     });
-    tl.to(mountain3.current, { y: "-=80" }, 0)
-      .to(mountain2.current, { y: "-=30" }, 0)
-      .to(mountain1.current, { y: "+=50" }, 0)
-      .to(stars.current, { top: 0 }, 0.5)
-      .to(cloudsBottom.current, { opacity: 0, duration: 0.5 }, 0)
-      .to(cloudsLeft.current, { x: "-20%", opacity: 0 }, 0)
-      .to(cloudsRight.current, { x: "20%", opacity: 0 }, 0)
-      .to(sun.current, { y: "+=210" }, 0)
-      .to(copy.current, { opacity: 1 }, 1.5)
-      .to(nav.current, { opacity: 1 }, 1.5);
-    // });
-    // window.addEventListener("DOMContentLoaded", onLoad);
-
-    // return () => {
-    //   window.removeEventListener("DOMContentLoaded", onLoad);
-    // };
-  }, []);
-
-  useGSAP((context, contextSafe) => {
-    if (searchSubmitted) {
-      console.log("t2");
-      const t2 = gsap.timeline({
-        defaults: { duration: 3 },
-      });
-      t2.to(
-        mountain3.current,
-        { y: "-=460", z: "1000", scaleY: 50, scaleX: 5 },
-        5
-      )
-        .to(
-          mountain2.current,
-          { y: "-=400", z: "1000", scaleY: 50, scaleX: 5 },
-          5
-        )
-        .to(
-          mountain1.current,
-          { y: "-=540", z: "1000", scaleY: 50, scaleX: 5 },
-          5
-        )
-        .to(copy.current, { z: "0" }, 5)
-        .to(nav.current, { opacity: 0 }, 5);
+    if (!animationComplete) {
+      tl.to(mountain3.current, { y: "-=80" }, 0)
+        .to(mountain2.current, { y: "-=30" }, 0)
+        .to(mountain1.current, { y: "+=50" }, 0)
+        .to(stars.current, { top: 0 }, 0.5)
+        .to(cloudsBottom.current, { opacity: 0, duration: 0.5 }, 0)
+        .to(cloudsLeft.current, { x: "-20%", opacity: 0 }, 0)
+        .to(cloudsRight.current, { x: "20%", opacity: 0 }, 0)
+        .to(sun.current, { y: "+=210" }, 0)
+        .to(copy.current, { opacity: 1 }, 1.5);
+    } else {
+      tl.set(mountain3.current, { y: "-=80" }, 0)
+        .set(mountain2.current, { y: "-=30" }, 0)
+        .set(mountain1.current, { y: "+=50" }, 0)
+        .set(stars.current, { top: 0 }, 0)
+        .set(cloudsBottom.current, { opacity: 0, duration: 0 }, 0)
+        .set(cloudsLeft.current, { x: "-20%", opacity: 0 }, 0)
+        .set(cloudsRight.current, { x: "20%", opacity: 0 }, 0)
+        .set(sun.current, { y: "+=210" }, 0)
+        .set(copy.current, { opacity: 1 }, 0);
+      setAnimationComplete(false);
     }
   }, []);
 
+  // useGSAP(
+  //   (context, contextSafe) => {
+  //     if (searchSubmitted) {
+  //       const t2 = gsap.timeline({
+  //         defaults: { duration: 1 },
+  //         onComplete: () => {
+  //           setAnimationComplete(true); // Notify that the animation is complete
+  //         },
+  //       });
+
+  //       t2.set(mountain3.current, { zIndex: 10 }, 0)
+  //         .set(mountain2.current, { zIndex: 9 }, 0)
+  //         .set(mountain1.current, { zIndex: 8 }, 0)
+  //         .to(
+  //           mountain3.current,
+  //           { y: "-=460", z: "1000", scaleY: 40, scaleX: 1 },
+  //           0.5
+  //         )
+  //         .to(
+  //           mountain2.current,
+  //           {
+  //             y: "-=400",
+  //             z: "1000",
+  //             scaleY: 40,
+  //             scaleX: 1,
+  //           },
+  //           0.5
+  //         )
+  //         .to(
+  //           mountain1.current,
+  //           {
+  //             y: "-=540",
+  //             z: "1000",
+  //             scaleY: 40,
+  //             scaleX: 1,
+  //           },
+  //           0.5
+  //         )
+  //         .to(nav.current, { opacity: 0, duration: 0.5 }, 0);
+  //     }
+  //   },
+  //   [searchSubmitted]
+  // );
+
   return (
     <>
-      <NavBar
-        searchSubmitted={searchSubmitted}
-        setSearchSubmitted={setSearchSubmitted}
-        ref={nav}
-      />
       <div className="parallax-outer">
         <div
           ref={parallaxRef}
@@ -117,7 +138,11 @@ function Parallax() {
             src="/assets/clouds-right.svg"
           />
           <img ref={stars} className="stars" src="/assets/stars.svg" />
-          <Hero ref={copy} className="copy" />
+          <Hero
+            ref={copy}
+            className="copy"
+            setSearchSubmitted={setSearchSubmitted}
+          />
         </div>
       </div>
     </>

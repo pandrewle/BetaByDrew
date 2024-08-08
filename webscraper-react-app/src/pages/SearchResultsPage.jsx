@@ -1,14 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import "./SearchResultsPage.css";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import NavBar from "../components/navbar";
 import Loader from "../components/Loading";
 import ImageSlider from "../components/ImageSlider";
-gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollToPlugin);
+import ResultsCard from "../components/ResultsCard";
+import { useInfiniteLoop } from "../components/InfiniteLoop";
 
 function SearchResults() {
   const [searchSubmitted, setSearchSubmitted] = useState(true);
@@ -16,8 +13,9 @@ function SearchResults() {
   const [results, setResults] = useState(null);
   const [displayLoader, setDisplayLoader] = useState(true);
   const cardRefs = useRef([]);
-  const container = useRef();
-  const { contextSafe } = useGSAP({ scope: container.current });
+  const container = useRef(null);
+
+  const spacing = 0.1; // spacing of the cards (stagger)
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -71,164 +69,68 @@ function SearchResults() {
     }
   }, [input]);
 
-  const cardAnimation = contextSafe(() => {
-    // Calculate the total scroll length needed for all cards
-    const totalScrollLength = results.length * 1000; // Adjust the multiplier based on animation duration
+  const mockResults = [
+    {
+      logo: "https://via.placeholder.com/150", // Replace with actual image URL or use a placeholder
+      websiteName: "Website A",
+      product: "Product A",
+      price: 19.99,
+      productUrl: "#",
+      productSizes: ["S", "M", "L"],
+    },
+    {
+      logo: "https://via.placeholder.com/150",
+      websiteName: "Website B",
+      product: "Product B",
+      price: 24.99,
+      productUrl: "#",
+      productSizes: ["S", "M"],
+    },
+    {
+      logo: "https://via.placeholder.com/150",
+      websiteName: "Website C",
+      product: "Product C",
+      price: 29.99,
+      productUrl: "#",
+      productSizes: ["L", "XL"],
+    },
+    {
+      logo: "https://via.placeholder.com/150",
+      websiteName: "Website D",
+      product: "Product D",
+      price: 34.99,
+      productUrl: "#",
+      productSizes: ["M", "L", "XL"],
+    },
+    {
+      logo: "https://via.placeholder.com/150",
+      websiteName: "Website E",
+      product: "Product E",
+      price: 39.99,
+      productUrl: "#",
+      productSizes: ["XS", "S"],
+    },
+  ];
 
-    // Create a GSAP timeline and configure it with ScrollTrigger
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: ".pinned-container", // Parent container that includes everything
-        pin: true,
-        start: "top top",
-        end: `+=${totalScrollLength}`, // Match the total length to the number of cards
-        scrub: 1,
-        markers: true,
-      },
-    });
-
-    results.forEach((result, index) => {
-      const currentCard = `.result-item:nth-child(${index + 1})`;
-      if (index === 0) {
-        tl.set(currentCard, { zIndex: 1 });
-        tl.to(currentCard, {
-          opacity: 1,
-          scale: 1,
-        });
-      } else {
-        const previousCard = `.result-item:nth-child(${index})`;
-        const previousPosition = { top: index * 20, left: index * 20 };
-        const currentPosition = {
-          top: (index - 1) * 20,
-          left: (index - 1) * 20,
-        };
-
-        tl.to(previousCard, {
-          opacity: 1,
-          yPercent: 120,
-          scale: 1.15,
-        })
-          .set(currentCard, { zIndex: 2 })
-          .to(previousCard, {
-            opacity: 0.25,
-            yPercent: 0,
-            scale: 1,
-            top: previousPosition.top,
-            left: previousPosition.left,
-          })
-          .to(
-            currentCard,
-            {
-              top: currentPosition.top,
-              left: currentPosition.left,
-              opacity: 1,
-              scale: 1,
-            },
-            "<"
-          )
-          .to(currentCard, {
-            opacity: 1,
-            scale: 1,
-          })
-          .set(previousCard, { zIndex: 0 });
-      }
-    });
-  });
-
-  useEffect(() => {
-    if (results) {
-      cardAnimation();
-    }
-  }, [results]);
+  useInfiniteLoop(results, cardRefs.current, spacing, container.current);
 
   return (
     <>
-      <NavBar
-        searchSubmitted={searchSubmitted}
-        setSearchSubmitted={setSearchSubmitted}
-      />
       <div className="pinned-container" ref={container}>
-        <div className="SearchResults flex flex-col lg:flex-col gap-0 lg:items-center lg:justify-start">
-          <h1 className="header text-2xl font-bold my-4">
-            Search Results for "{input}"
-          </h1>
+        <div className="SearchResults flex flex-col lg:flex-col gap-0 lg:items-center lg:justify-start p-4">
           {displayLoader && <Loader isPending={isPending} />}
           {!isPending && !displayLoader && (
-            <div className="Results flex flex-col items-center lg:flex-row lg:w-full lg:items-start">
-              <ImageSlider results={results} />
-              <div className="results-container lg:w-1/2 flex flex-col gap-8 items-center m-4 relative">
-                {results && results.length > 0 ? (
-                  results
-                    .filter((result) => result.price > 0) // Filter out items with price of 0.00
-                    .map((result, index) => (
-                      <div
-                        key={index}
-                        className={`result-item absolute p-4 flex flex-col justify-center gap-1 lg:gap-4 w-[80%] rounded-md transform ${
-                          index === 0 ? "z-10" : "z-0"
-                        }`}
-                        ref={(el) => (cardRefs.current[index] = el)}
-                        style={{
-                          top: `${index * 20}px`,
-                          left: `${index * 20}px`,
-                        }}
-                      >
-                        {index === 0 && (
-                          <div className="flex w-full items-start justify-end mb-4">
-                            <span className="absolute top-0 right-0 bg-blue-600 text-white text-s font-bold py-1 px-2 rounded-tr-md rounded-bl-md">
-                              Lowest Price!
-                            </span>
-                          </div>
-                        )}
-                        <div className="product-info flex items-center gap-4">
-                          <img
-                            src={result.logo}
-                            alt={`${result.websiteName} logo`}
-                            className="w-24 h-24 object-contain"
-                          />
-                          <div className="results-info">
-                            <h2 className="text-xl font-bold">
-                              {result.product}
-                            </h2>
-                            <p className="text-lg font-bold text-blue-500">
-                              ${result.price}
-                            </p>
-                            <a
-                              href={result.productUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-gray-400 hover:underline hover:text-white"
-                            >
-                              View Product
-                            </a>
-                          </div>
-                        </div>
-                        <h3 className="size-header text-lg font-semibold mt-4 flex">
-                          Sizes:
-                        </h3>
-                        <div className="results-sizes flex flex-wrap gap-2">
-                          {result.productSizes &&
-                          result.productSizes.length > 0 ? (
-                            result.productSizes.map((size, sizeIndex) => (
-                              <span
-                                key={sizeIndex}
-                                className="size-item px-2 py-1 border rounded-md"
-                              >
-                                {size}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="no-sizes text-gray-500">
-                              No sizes available
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                ) : (
-                  <p className="text-lg text-gray-500">No results found</p>
-                )}
+            <>
+              <h1 className="header text-4xl font-bold mt-20 mb-8">
+                Search Results for "{input}"
+              </h1>
+              <div className="Results flex flex-col justify-center items-center lg:flex-row lg:w-full lg:items-start">
+                {results && <ImageSlider results={results} />}
+                <div className="results-container lg:w-1/2 flex flex-col gap-8 justify-center items-center m-4 relative">
+                  <ResultsCard results={results} ref={cardRefs} />
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>

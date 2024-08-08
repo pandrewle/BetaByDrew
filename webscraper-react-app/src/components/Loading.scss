@@ -1,5 +1,5 @@
-$primary-black: #000;
-$primary-white: #eee;
+$primary-white: #000;
+$primary-black: #e4e4e4;
 
 * {
   margin: 0;
@@ -9,8 +9,7 @@ $primary-white: #eee;
 
 html,
 body {
-  width: 100vw;
-  height: 100vh;
+  background-color: rgb(32, 34, 36);
   background-image: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
   display: flex;
   flex-direction: column;
@@ -20,9 +19,11 @@ body {
 
 .loading-wrapper {
   display: flex;
+  width: 100vw;
+  height: 100vh;
   align-items: center;
   justify-content: center;
-  background: #eee;
+  background: rgb(32, 34, 36);
   padding: 1rem;
   border-radius: 0.5rem;
   backdrop-filter: blur(50px);

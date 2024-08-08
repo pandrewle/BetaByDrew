@@ -6,6 +6,16 @@ body {
     box-sizing: border-box;
 }
 
+@font-face {
+  font-family: "TT Norms Pro Bold";
+  src: url(../fonts/Fontspring-DEMO-tt_norms_pro_bold.otf);
+}
+
+@font-face {
+  font-family: "TT Norms Pro Normal";
+  src: url(../fonts/Fontspring-DEMO-tt_norms_pro_normal.otf);
+}
+
 :root {
     --primaryColor: #282a57;
     --secondaryColor: #e4e4e4;
@@ -113,6 +123,25 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  scale: 1.23;
-  z-index: 1; /* Ensure it stays above other elements */
+  z-index: 4; /* Ensure it stays above other elements */
+  font-family: "TT Norms Pro Normal";
+}
+
+.aboutpage-container {
+  background-color: #282a57;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #2b2929;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

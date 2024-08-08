@@ -6,15 +6,6 @@
 body {
     overflow-x: hidden;
   }
-  
-  .wrap.transition-enabled {
-    /* transition: top 1s ease, transform 1s ease; Smooth transition */
-  }
-  
-  .wrap.search-top {
-    /* top: 0px; Fixed spacing from the top */
-    /* transform: translate(0, 0); Maintain horizontal centering */
-  }
 
 .divONE {
     box-sizing: border-box;
@@ -36,10 +27,11 @@ body {
 
 .search:focus-within {
     background: #f1f1f1;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 1);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.6);
 }
 
 .search-input {
+    width: 100%;
     font-size: 16px;
     font-family: 'TT Norms Pro Normal';
     color: #333333;

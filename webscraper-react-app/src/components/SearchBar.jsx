@@ -1,51 +1,27 @@
 import React, { useState, useEffect, useContext } from "react";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { SearchContext } from "./SearchContext";
+import { SearchContext, AnimationContext } from "./AppContext";
 import "./SearchBar.css";
 
-export const SearchBar = ({ searchSubmitted, setSearchSubmitted }) => {
+export const SearchBar = ({ setSearchSubmitted }) => {
   const { input, setInput } = useContext(SearchContext);
-  const [transitionEnabled, setTransitionEnabled] = useState(false);
+  const { animationComplete, setAnimationComplete } =
+    useContext(AnimationContext);
   const navigate = useNavigate();
+
+  const navigateToResults = () => {
+    console.log("Navigating to search results");
+    navigate(`/searchResults?query=${input}`); // Include search query in the URL
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setTransitionEnabled(true); // Enable transition for smooth animation
+    console.log("Search submitted");
     setSearchSubmitted(true);
-
-    // // Assuming the transitioning element is the div with class "wrap"
-    const wrapElement = document.querySelector(".wrap");
-
-    const navigateToResults = () => {
-      navigate(`/searchResults?query=${input}`); // Include search query in the URL
-    };
-
-    if (wrapElement) {
-      const onTransitionEnd = () => {
-        navigateToResults();
-        wrapElement.removeEventListener("transitionend", onTransitionEnd); // Clean up
-      };
-
-      wrapElement.addEventListener("transitionend", onTransitionEnd);
-
-      // In case the transition event doesn't fire, navigate after a short delay
-      setTimeout(() => {
-        wrapElement.removeEventListener("transitionend", onTransitionEnd);
-        navigateToResults();
-      }, 1000); // Adjust the timeout duration as necessary
-    } else {
-      navigateToResults(); // If wrapElement is not found, navigate immediately
-    }
+    setAnimationComplete(true);
+    navigateToResults();
   };
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setTransitionEnabled(false); // Disable transition on resize
-  //   };
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
 
   const handleClear = () => {
     setInput("");

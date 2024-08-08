@@ -1,40 +1,35 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { SearchProvider } from "./components/SearchContext.jsx";
-
-import HomePage from "./pages/HomePage.jsx";
-import SearchResults from "./pages/SearchResultsPage.jsx";
-import NotFoundPage from "./pages/NotFoundPage.jsx";
-import AboutPage from "./pages/AboutPage.jsx";
-import ContactPage from "./pages/ContactPage.jsx";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import App from "./App.jsx";
 
 import "./index.css";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomePage />,
-    errorElement: <NotFoundPage />,
-  },
-  {
-    path: "/searchResults",
-    element: <SearchResults />,
-  },
-  {
-    path: "/about",
-    element: <AboutPage />,
-  },
-  {
-    path: "/contact",
-    element: <ContactPage />,
-  },
-]);
+//   {
+//     path: "/",
+//     element: <AnimatedHomePage />,
+//     errorElement: <NotFoundPage />,
+//   },
+//   {
+//     path: "/searchResults",
+//     element: <AnimatedSearchResults />,
+//   },
+//   {
+//     path: "/about",
+//     element: <AnimatedAboutPage />,
+//   },
+//   {
+//     path: "/contact",
+//     element: <AnimatedContactPage />,
+//   },
+// ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <SearchProvider>
-      <RouterProvider router={router} />
-    </SearchProvider>
+    <Router>
+      <Routes>
+        <Route path="/*" element={<App />} />
+      </Routes>
+    </Router>
   </React.StrictMode>
 );

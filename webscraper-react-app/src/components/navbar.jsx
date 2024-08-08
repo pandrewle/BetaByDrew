@@ -1,27 +1,108 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { HashLink } from "react-router-hash-link";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
 import { SearchBar } from "./SearchBar";
+import { SearchSubmitContext } from "./AppContext";
 
-const NavBar = forwardRef((props, ref) => {
-  const { searchSubmitted, setSearchSubmitted } = props;
+gsap.registerPlugin(useGSAP);
+
+const NavBar = React.memo(() => {
+  const { searchSubmitted, setSearchSubmitted } =
+    useContext(SearchSubmitContext);
   const [toggle, setToggle] = useState(false);
-  const handleClick = () => setToggle(!toggle);
+  const location = useLocation();
   const navigate = useNavigate();
 
+  const { contextSafe } = useGSAP();
+
+  // GSAP Animations
+  const animateNavBar = contextSafe((fromProps, toProps) => {
+    gsap.fromTo(".nav-bar", fromProps, toProps);
+  });
+
+  const animateBurgerMenu = contextSafe((expandedProps) => {
+    gsap.set(".burger-expanded", expandedProps);
+  });
+
+  const handleClick = () => {
+    setToggle((prevToggle) => !prevToggle); // Use function form to ensure correct state
+  };
+
+  useEffect(() => {
+    const tl = gsap.timeline({ defaults: { duration: 1 } });
+    if (toggle) {
+      tl.fromTo(
+        ".burger-expanded",
+        { height: 0 },
+        { height: 200, autoAlpha: 1, duration: 1, ease: "power2.out" },
+        0
+      ).fromTo(
+        ".mobile-link",
+        { opacity: 0 },
+        { opacity: 1, duration: 1, ease: "power2.out", stagger: 0.3 },
+        0
+      );
+    } else {
+      tl.to(
+        ".burger-expanded",
+        { height: 0, autoAlpha: 0, duration: 1.2, ease: "power2.in" },
+        0
+      ).to(
+        ".mobile-link",
+        { opacity: 0, duration: 0.5, ease: "power2.out", stagger: -0.3 },
+        0
+      );
+    }
+  }, [toggle]);
+
+  useEffect(() => {
+    const path = location.pathname;
+
+    if (path === "/") {
+      setSearchSubmitted(false);
+      animateNavBar(
+        { opacity: 0 },
+        {
+          background: "transparent",
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          ease: "power2.out",
+          delay: 1,
+        }
+      );
+      animateBurgerMenu({
+        background: `linear-gradient(to bottom, #0F2B9C calc(-11vh), #673D7D calc(20vh), #A74A67 calc(46vh))`,
+      });
+    } else if (
+      path === "/about" ||
+      path === "/searchResults" ||
+      path === "/contact"
+    ) {
+      setSearchSubmitted(true);
+      animateNavBar(
+        {
+          y: -200,
+          background: `linear-gradient(to bottom, #0F2B9C calc(-3vh), #673D7D calc(20vh))`,
+          opacity: 0,
+          delay: 1,
+        },
+        { y: 0, opacity: 1, duration: 1, ease: "power2.out", delay: 1.3 }
+      );
+      animateBurgerMenu({
+        background: `linear-gradient(to bottom, #0F2B9C calc(-15vh), #673D7D calc(20vh))`,
+      });
+    }
+    // Add more cases as necessary for different pages
+  }, [location]);
+
   return (
-    <div
-      className={
-        searchSubmitted
-          ? "fixed top-0 left-0 w-full h-[70px] bg-red-300 z-50 px-0 opacity-1"
-          : "fixed top-0 left-0 w-full h-[70px] bg-transparent z-50 px-0 opacity-0"
-      }
-      ref={ref}
-    >
-      <div className="md:max-w-full max-w-[600px] m-auto w-full h-full flex justify-between items-center md:px-12 px-4">
+    <div className="nav-bar fixed top-0 left-0 w-full h-[60px] bg-transparent z-50 px-0 opacity-0">
+      <div className="md:max-w-full max-w-[600px] m-auto w-full h-full flex justify-between items-center md:px-12 px-4 text-gray-300">
         <svg
-          id="Layer_1"
-          data-name="Layer 1"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 944.57 466.92"
           className="h-[80%] hover:cursor-pointer hover:scale-110 transform transition-transform duration-300"
@@ -29,7 +110,7 @@ const NavBar = forwardRef((props, ref) => {
         >
           <defs>
             <style>
-              {`.cls-1 {
+              {`.cls-2 {
               fill: #e4e4e4;
               stroke: #e4e4e4;
               stroke-miterlimit: 10;
@@ -39,63 +120,67 @@ const NavBar = forwardRef((props, ref) => {
             </style>
           </defs>
           <path
-            className="cls-1"
+            className="cls-2"
             d="M203.68,219.72c-3.96.6-6.48.87-8.94,1.39-4.19.89-7.62-.45-10.49-3.38-4.98-5.07-4.31-9.93,2.11-13,10.4-4.98,20.93-9.69,31.45-14.4,4.03-1.8,7.4-4.1,10.04-7.83,11.04-15.57,19.45-32.6,28.12-49.49,4.71-9.18,9.16-18.49,13.48-27.86,1.23-2.66,1.58-5.73,2.52-9.36-2.32.11-3.59-.18-4.5.27-14.92,7.23-29.88,14.4-44.63,21.96-4.22,2.16-8.1,5.24-11.6,8.48-2.2,2.03-3.6,5.03-4.98,7.79-1.6,3.17-3.89,3.88-7.14,3.12-6.76-1.59-10.23-9.52-6.26-15.22,1.88-2.71,4.28-5.34,7.01-7.13,14.51-9.48,30.07-17.05,45.51-24.92,15.09-7.69,31.31-12.17,46.72-18.84,6.81-2.94,14.11-4.76,21.24-6.94,17.98-5.49,36.22-9.7,55.02-11.22,11.66-.94,22.48,1.54,32.2,8.04,6.27,4.2,9.11,12.87,5.77,19.84-2.66,5.54-6.11,11.08-10.48,15.33-10.31,10.05-21.22,19.43-33.78,26.81-9.31,5.47-17.96,12.07-27.08,17.87-9.92,6.32-19.95,12.49-30.12,18.4-14.55,8.45-29.29,16.59-43.91,24.94-1.58.9-2.85,2.34-4.55,3.77,2.26,2.79,4.64,2.94,7.38,2.5,13.88-2.23,27.8-2.09,41.71-.4,10.31,1.26,18.62,5.93,24.57,14.56,4.85,7.04,4.05,13.98-.37,20.88-5.64,8.8-12.73,16.37-20.96,22.66-13.17,10.08-26.45,20.04-40.18,29.32-15.09,10.2-30.55,19.89-46.2,29.2-10.52,6.26-21.66,11.46-32.52,17.16-12.56,6.59-25.03,13.34-37.66,19.78-17.39,8.85-35.53,15.94-54.12,21.82-6.3,1.99-11.7-1.03-13.08-6.66-1.2-4.9.03-7.09,4.88-8.68,9.37-3.06,18.79-5.98,28.08-9.25,4.06-1.42,7.95-3.39,11.77-5.4,5.85-3.08,8.61-8.94,11.95-14.18,13.05-20.5,26-41.06,38.93-61.64,6.92-11,13.77-22.05,20.53-33.15,1.02-1.68,1.41-3.74,2.57-6.95ZM162.09,318.71c.47.46.95.92,1.42,1.38,5.55-2.69,11.23-5.15,16.62-8.13,14.51-8.01,29-16.04,43.29-24.43,14.28-8.38,28.7-16.62,42.31-26,12.43-8.56,24.22-18.15,35.57-28.12,5.3-4.65,9.45-10.91,13.09-17.05,4.13-6.97,1.95-10.75-6.25-11.73-7.35-.88-14.81-1.64-22.19-1.41-18.03.57-35.88,2.65-53.34,7.66-3.87,1.11-6.24,2.88-8.22,6.17-5.2,8.65-10.68,17.13-16,25.71-14.7,23.68-29.38,47.38-44.03,71.09-.93,1.51-1.53,3.23-2.29,4.85ZM254.7,168.8c3.85-1.15,6.23-1.46,8.22-2.51,6.99-3.73,13.98-7.5,20.73-11.65,19.64-12.08,39.37-24.03,58.65-36.67,10.62-6.97,20.41-15.21,30.56-22.88,2.28-1.73,4.82-3.24,6.74-5.31,4.02-4.36,8.16-8.73,11.38-13.67,2.11-3.24.87-5.42-2.97-6.45-4.12-1.11-8.42-1.87-12.68-2.09-17.29-.88-33.99,2.97-50.44,7.54-10.62,2.95-20.9,7.16-31.3,10.88-3.97,1.42-6.13,3.99-6.28,8.6-.13,3.77-1.09,7.62-2.32,11.22-5.37,15.73-12.42,30.7-20.73,45.1-3.08,5.34-5.83,10.88-9.56,17.89Z"
           />
           <path
-            className="cls-1"
+            className="cls-2"
             d="M495.19,190.52c8.3,1.32,15.41-.07,22.35-1.48,14.85-3,29.59-6.52,44.38-9.86,6-1.35,10.86-3.55,14.16-9.73,9.74-18.23,20.4-35.96,30.42-54.05,2.18-3.93,3.31-8.47,4.73-12.79.96-2.92,2.06-5.4,5.66-5.59,4.9-.26,9.13,1.47,9.94,5.35.85,4.08.93,8.55.23,12.66-.59,3.44-2.48,6.79-4.32,9.86-7.02,11.71-14.31,23.25-21.36,34.95-1.44,2.38-2.26,5.13-4.03,9.24,6.12-1.09,10.73-1.82,15.3-2.76,7.75-1.58,15.43-3.48,23.21-4.9,8.73-1.59,17.53-2.77,26.3-4.15,7.66-1.21,12.43,1.62,14.4,8.6,1.19,4.2.05,6.5-4.22,7.42-3.27.7-6.68.76-10.01,1.22-9.04,1.23-18.16,2.11-27.1,3.88-15.78,3.13-31.47,6.73-47.14,10.39-2.14.5-4.61,2.11-5.77,3.94-15.31,24.16-33.54,46.5-45.62,72.67-1.38,3-2.38,6.37-2.67,9.64-.37,4.25,1.81,5.78,5.85,4.25,11-4.17,21.83-8.79,32.86-12.87,15.41-5.71,30.99-10.52,47.88-7.89,3.75.58,6.45,2.2,8.18,5.11.68,1.15.22,4.15-.78,4.88-2.24,1.66-5.19,3.49-7.76,3.38-12.06-.54-23.22,2.89-34.15,7.14-12.3,4.78-24.46,9.96-36.53,15.3-7.83,3.46-15.51,3.12-23.13.04-2-.81-3.8-2.9-4.97-4.83-6.07-10.05-6.46-20.71-1.41-31.08,4.41-9.07,9.59-17.79,14.93-26.36,5.73-9.18,12.08-17.97,18.06-26.99,1.28-1.92,2.17-4.11,3.77-7.21-2.6,0-4.15-.28-5.57.04-10.31,2.34-20.49,5.51-30.92,7.01-10.1,1.44-20.11,4.74-30.67,2.34-9.28-2.11-15.55-9.78-14.52-19.16.15-1.39.57-2.85,1.24-4.08,2.28-4.19,4.66-8.33,7.12-12.43,2.28-3.8,5.38-4.51,9.16-2.28,7.57,4.47,8.76,9.49,4.17,17.44-.46.79-.76,1.68-1.66,3.73Z"
           />
           <path
-            className="cls-1"
+            className="cls-2"
             d="M347.04,277.26c.32,14.89,9.26,23.36,24.13,23.12,13.91-.22,26.99-3.12,39.4-9.41,14.38-7.29,29.38-13.52,43.09-21.88,8.28-5.04,16.39-10.49,24.96-15.1,3.54-1.9,7.53-3.29,11.48-3.95,2.28-.38,5.47.44,7.24,1.93,5.81,4.9,5.08,10.1-1.76,13.56-9.85,5-19.88,9.63-29.77,14.56-9.03,4.5-17.89,9.33-26.95,13.77-10.56,5.17-21.08,10.49-31.93,14.99-12.55,5.2-25.7,8.28-39.44,6.35-10.21-1.43-19.7-4.89-26.49-13.13-10.7-12.99-12.51-27.59-7.35-43.42,5.52-16.94,15.06-31.58,25.4-45.83,9.55-13.15,20.89-24.4,34.43-33.42,6.37-4.25,13.65-6.05,21.09-6.8,5.05-.5,8.73,3.06,11.32,6.69,2.73,3.83,4.98,8.34,6.14,12.88,1.59,6.25,2.59,12.81,2.68,19.25.1,7.26,1.57,13.77,5.7,19.72,2.07,2.98,2.76,6.14.32,9.33-2.52,3.28-6.76,5.23-10.09,3.16-9.64-6-19.68-3.52-29.47-1.79-9.65,1.71-19.05,4.82-28.56,7.3-3.93,1.03-7.82,2.24-11.8,2.98-4.7.88-7.94,2.94-9.12,7.9-1.37,5.79-3.09,11.5-4.66,17.24ZM365.81,232.09c.43.46.87.92,1.3,1.38,8.61-1.75,17.19-3.61,25.82-5.22,8.78-1.64,17.6-3.04,26.52-4.57,0-8.75.02-16.66-.02-24.56,0-1.44-.15-2.89-.41-4.3-1.29-6.85-3.63-8.08-10-4.97-12.49,6.11-23.09,14.5-31.28,25.87-2.78,3.85-6.23,7.22-9.15,10.97-1.22,1.57-1.87,3.59-2.78,5.41Z"
           />
           <path
-            className="cls-1"
+            className="cls-2"
             d="M750.71,229.48c.84-1.14,1.73-1.81,1.87-2.63,1.31-7.33,2.91-14.64,3.59-22.04.29-3.14-.4-4.74-1.13-6.09-2.95-5.43-10.59-6.38-14.63-6.88-8.4-1.05-15.22,1.27-16.93,1.88-4.54,1.64-5.98,3.22-13,5.51,0,0-3.23,1.06-8.1,1.76-6.25.9-7.36.02-7.74-.35-1.68-1.62-1.35-4.9-.35-7.04,1.49-3.2,4.78-4.55,6.52-5.23,14.34-5.64,21.66-7.74,26.52-9.15,7.7-2.23,15.21-1.7,22.8-.01,9.54,2.13,19.31,12.73,21.36,22.23,2.1,9.71,1.03,19.14-1.58,28.45-1.82,6.46-4.53,12.67-6.45,19.11-1.09,3.64-1.67,7.5-1.97,11.29-.31,3.92-1.62,6.85-5.11,8.91-2.68,1.58-4.99,3.79-7.67,5.36-6.83,4-13.7,7.45-21.9,8.54-12.36,1.65-24.49,4.87-36.81,6.92-7.78,1.29-15.24,1.02-22.34-1.08-5.81-1.72-10.56-2.74-14-6.92-5.78-7.03-3.64-17.05-2.68-21.54.76-3.56,2.79-10.35,8.45-16.55,2.76-3.02,6.32-5.83,20.77-11.62,5.35-2.14,10.64-4.07,35.2-11.27,14.69-4.31,19.08-5.46,24.27-3.23,5.88,2.52,9.21,7.83,11.02,11.65ZM677.16,274.74c6.48-.73,13.01-.92,19.3-2.27,14.06-3.03,27.98-6.72,42-9.94,3.59-.82,4.49-2.91,4.66-6.15.41-7.96-1.94-14.87-6.19-21.67-3.47-5.55-7.52-8.38-14.01-7.94-12.75.87-24.37,5.75-35.28,11.57-7.24,3.87-13.26,10.26-19.29,16.07-2.82,2.72-4.81,6.58-6.38,10.26-1.66,3.9-.83,5.76,3.29,7.35,3.73,1.43,7.85,1.83,11.9,2.71Z"
           />
         </svg>
         <div
-          className={searchSubmitted ? "flex flex-1 justify-center" : "hidden"}
+          className={
+            searchSubmitted ? "flex flex-1 justify-center scale-90" : "hidden"
+          }
         >
-          <SearchBar
-            searchSubmitted={searchSubmitted}
-            setSearchSubmitted={setSearchSubmitted}
-          />
+          <SearchBar setSearchSubmitted={setSearchSubmitted} />
         </div>
         <div className="hidden md:flex items-center flex-shrink-0">
           <ul className="flex gap-4">
-            <Link to="/" className="hover:underline px-1">
+            <Link to="/" className="hover:text-white px-1">
               Home
             </Link>
-            <Link to="/about" className="hover:underline px-1">
+            <HashLink smooth to="/#about" className="hover:text-white px-1">
               About
-            </Link>
-            <Link to="/contact" className="hover:underline px-1">
+            </HashLink>
+            <HashLink smooth to="/#contact" className="hover:text-white px-1">
               Contact
-            </Link>
+            </HashLink>
           </ul>
         </div>
-        <div className="md:hidden" onClick={handleClick}>
-          {toggle ? <FaTimes size={24} /> : <FaBars size={24} />}
+        <div className="md:hidden hover:cursor-pointer" onClick={handleClick}>
+          {toggle ? (
+            <FaTimes className="animate-zoomBounce" size={24} />
+          ) : (
+            <FaBars className="animate-zoomBounce" size={24} />
+          )}
         </div>
       </div>
-      <div
-        className={toggle ? "absolute z-10 p-4 bg-white w-full px-8" : "hidden"}
-      >
+      <div className="burger-expanded absolute z-10 p-4 bg-white w-full px-8 opacity-0">
         <ul>
-          <li className="p-4 hover:bg-gray-100">
-            <Link to="/" className="hover:underline">
+          <li className="mobile-link p-4">
+            <Link to="/" className="hover:underline hover:text-white px-1">
               Home
             </Link>
           </li>
-          <li className="p-4 hover:bg-gray-100">
-            <Link to="/about" className="hover:underline">
+          <li className="mobile-link p-4">
+            <Link to="/about" className="hover:underline hover:text-white px-1">
               About
             </Link>
           </li>
-          <li className="p-4 hover:bg-gray-100">
-            <Link to="/contact" className="hover:underline">
+          <li className="mobile-link p-4">
+            <Link
+              to="/contact"
+              className="hover:underline hover:text-white px-1"
+            >
               Contact
             </Link>
           </li>
