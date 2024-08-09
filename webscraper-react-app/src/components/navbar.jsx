@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { HashLink } from "react-router-hash-link";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { SearchBar } from "./SearchBar";
@@ -9,7 +8,7 @@ import { SearchSubmitContext } from "./AppContext";
 
 gsap.registerPlugin(useGSAP);
 
-const NavBar = React.memo(() => {
+const NavBar = () => {
   const { searchSubmitted, setSearchSubmitted } =
     useContext(SearchSubmitContext);
   const [toggle, setToggle] = useState(false);
@@ -148,12 +147,12 @@ const NavBar = React.memo(() => {
             <Link to="/" className="hover:text-white px-1">
               Home
             </Link>
-            <HashLink smooth to="/#about" className="hover:text-white px-1">
+            <Link to="/#about" className="hover:text-white px-1">
               About
-            </HashLink>
-            <HashLink smooth to="/#contact" className="hover:text-white px-1">
+            </Link>
+            <Link to="/#contact" className="hover:text-white px-1">
               Contact
-            </HashLink>
+            </Link>
           </ul>
         </div>
         <div className="md:hidden hover:cursor-pointer" onClick={handleClick}>
@@ -188,6 +187,6 @@ const NavBar = React.memo(() => {
       </div>
     </div>
   );
-});
+};
 
 export default NavBar;

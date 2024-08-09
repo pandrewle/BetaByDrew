@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import "./SearchResultsPage.css";
-import NavBar from "../components/navbar";
+import transition from "../components/PageTransitions.jsx";
 import Loader from "../components/Loading";
 import ImageSlider from "../components/ImageSlider";
 import ResultsCard from "../components/ResultsCard";
 import { useInfiniteLoop } from "../components/InfiniteLoop";
 
 function SearchResults() {
-  const [searchSubmitted, setSearchSubmitted] = useState(true);
   const [isPending, setIsPending] = useState(true);
   const [results, setResults] = useState(null);
   const [displayLoader, setDisplayLoader] = useState(true);
@@ -138,4 +137,4 @@ function SearchResults() {
   );
 }
 
-export default SearchResults;
+export default transition(SearchResults);

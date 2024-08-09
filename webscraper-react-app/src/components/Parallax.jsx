@@ -98,7 +98,7 @@ function Parallax() {
 
   return (
     <>
-      <div className="parallax-outer">
+      <div className="parallax-outer" id="parallax">
         <div
           ref={parallaxRef}
           style={{
