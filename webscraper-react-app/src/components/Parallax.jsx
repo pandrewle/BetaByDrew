@@ -52,50 +52,6 @@ function Parallax() {
     }
   }, []);
 
-  // useGSAP(
-  //   (context, contextSafe) => {
-  //     if (searchSubmitted) {
-  //       const t2 = gsap.timeline({
-  //         defaults: { duration: 1 },
-  //         onComplete: () => {
-  //           setAnimationComplete(true); // Notify that the animation is complete
-  //         },
-  //       });
-
-  //       t2.set(mountain3.current, { zIndex: 10 }, 0)
-  //         .set(mountain2.current, { zIndex: 9 }, 0)
-  //         .set(mountain1.current, { zIndex: 8 }, 0)
-  //         .to(
-  //           mountain3.current,
-  //           { y: "-=460", z: "1000", scaleY: 40, scaleX: 1 },
-  //           0.5
-  //         )
-  //         .to(
-  //           mountain2.current,
-  //           {
-  //             y: "-=400",
-  //             z: "1000",
-  //             scaleY: 40,
-  //             scaleX: 1,
-  //           },
-  //           0.5
-  //         )
-  //         .to(
-  //           mountain1.current,
-  //           {
-  //             y: "-=540",
-  //             z: "1000",
-  //             scaleY: 40,
-  //             scaleX: 1,
-  //           },
-  //           0.5
-  //         )
-  //         .to(nav.current, { opacity: 0, duration: 0.5 }, 0);
-  //     }
-  //   },
-  //   [searchSubmitted]
-  // );
-
   return (
     <>
       <div className="parallax-outer" id="parallax">

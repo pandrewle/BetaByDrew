@@ -26,7 +26,7 @@ const ImageSlider = ({ results }) => {
             className={`w-16 h-16 lg:w-20 lg:h-20 rounded-md cursor-pointer p-2 transform transition-transform duration-200 
                         ${
                           imageIndex === idx
-                            ? "border-4 border-blue-500 opacity-80"
+                            ? "border-4 border-secondaryaccent opacity-80"
                             : ""
                         }`}
             onClick={() => setImageIndex(idx)}
@@ -43,13 +43,13 @@ const ImageSlider = ({ results }) => {
             loading="lazy"
           />
           <button
-            className="absolute top-1/2 left-0 ml-1 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-600"
+            className="absolute top-1/2 left-0 ml-1 transform -translate-y-1/2 bg-primarycolor text-secondarycolor p-2 rounded-full hover:bg-secondaryaccent"
             onClick={handlePrev}
           >
             <FaChevronLeft size={24} />
           </button>
           <button
-            className="absolute top-1/2 right-0 transform mr-1 -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-600"
+            className="absolute top-1/2 right-0 transform mr-1 -translate-y-1/2 bg-primarycolor text-secondarycolor p-2 rounded-full hover:bg-secondaryaccent"
             onClick={handleNext}
           >
             <FaChevronRight size={24} />

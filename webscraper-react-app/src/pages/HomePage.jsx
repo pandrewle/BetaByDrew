@@ -1,12 +1,16 @@
 import "./HomePage.css";
-import Parallax from "../components/Parallax";
+import React, { useContext } from "react";
+import Hero from "../components/Hero";
+import { SearchSubmitContext } from "../components/AppContext";
 import AboutPage from "./AboutPage";
 import transition from "../components/PageTransitions";
 
 function HomePage() {
+  const { searchSubmitted, setSearchSubmitted } =
+    useContext(SearchSubmitContext);
   return (
     <>
-      <Parallax />
+      <Hero setSearchSubmitted={setSearchSubmitted} />
       <AboutPage />
     </>
   );

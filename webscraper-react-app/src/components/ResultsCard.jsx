@@ -8,7 +8,7 @@ const ResultsCard = forwardRef((props, ref) => {
     <>
       {results && results.length > 0 ? (
         results
-          .filter((result) => result.price > 0) // Filter out items with price of 0.00
+          .filter((result) => result.fullPrice > 0) // Filter out items with price of 0.00
           .map((result, index) => (
             <div
               key={index}
@@ -24,7 +24,7 @@ const ResultsCard = forwardRef((props, ref) => {
             >
               {index === 0 && (
                 <div className="flex w-full items-start justify-end mb-4">
-                  <span className="absolute top-0 right-0 bg-blue-600 text-white text-s font-bold py-1 px-2 rounded-tr-md rounded-bl-md">
+                  <span className="absolute top-0 right-0 bg-secondaryaccent text-white text-s font-bold py-1 px-2 rounded-tr-md rounded-bl-md">
                     Lowest Price!
                   </span>
                 </div>
@@ -37,8 +37,16 @@ const ResultsCard = forwardRef((props, ref) => {
                 />
                 <div className="results-info">
                   <h2 className="text-xl font-bold">{result.product}</h2>
-                  <p className="text-lg font-bold text-blue-500">
-                    ${result.price}
+                  <p className="text-xl font-bold text-secondaryaccent">
+                    ${result.discountedPrice}
+                    <span className="text-lg text-gray-400 font-normal line-through decoration-1 ml-2">
+                      ${result.fullPrice}
+                    </span>
+                    <span className="bg-secondaryaccent bg-opacity-20 inline-block rounded-lg ml-2 px-1">
+                      <span className="text-lg text-secondaryaccent">
+                        Save {result.discount}%
+                      </span>
+                    </span>
                   </p>
                   <a
                     href={result.productUrl}

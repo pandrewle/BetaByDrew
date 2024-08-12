@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, useLocation, BrowserRouter } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import HomePage from "./pages/HomePage.jsx";
 import SearchResults from "./pages/SearchResultsPage.jsx";
@@ -18,6 +18,7 @@ function App() {
         <Routes location={location} key={location.pathname}>
           <Route index element={<HomePage />} />
           <Route path="/searchResults" element={<SearchResults />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>
     </AppProviders>

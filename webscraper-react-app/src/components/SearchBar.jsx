@@ -11,13 +11,11 @@ export const SearchBar = ({ setSearchSubmitted }) => {
   const navigate = useNavigate();
 
   const navigateToResults = () => {
-    console.log("Navigating to search results");
     navigate(`/searchResults?query=${input}`); // Include search query in the URL
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Search submitted");
     setSearchSubmitted(true);
     setAnimationComplete(true);
     navigateToResults();

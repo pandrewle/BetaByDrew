@@ -13,10 +13,14 @@ export const useInfiniteLoop = (
 ) => {
   const iteration = useRef(0);
   const snap = gsap.utils.snap(spacing);
+  const isInitialized = useRef(false);
+  const result = useRef(results);
+  console.log("starting");
+  console.log(results);
 
   useGSAP(
     (context, contextSafe) => {
-      const buildInfiniteloop = contextSafe(() => {
+      const buildInfiniteLoop = contextSafe(() => {
         const totalScrollLength = animatedItems.length * 1000;
         const seamlessLoop = buildSeamlessLoop(animatedItems, spacing);
         const scrub = gsap.to(seamlessLoop, {
@@ -77,11 +81,6 @@ export const useInfiniteLoop = (
                 },
               });
             }
-
-            return () => {
-              // Cleanup function to destroy ScrollTriggers when the screen size changes
-              trigger && trigger.kill();
-            };
           }
         );
 
@@ -233,10 +232,16 @@ export const useInfiniteLoop = (
         }
       });
       // const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-      if (animatedItems && animatedItems.length > 1) {
-        buildInfiniteloop();
+      if (
+        animatedItems &&
+        results &&
+        results.length > 1 &&
+        !isInitialized.current
+      ) {
+        buildInfiniteLoop();
+        isInitialized.current = true; // Mark as initialized
       }
     },
-    [results, animatedItems]
+    [results]
   );
 };

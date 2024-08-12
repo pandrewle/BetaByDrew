@@ -5,15 +5,21 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { SearchBar } from "./SearchBar";
 import { SearchSubmitContext } from "./AppContext";
+import { debounce } from "lodash";
 
 gsap.registerPlugin(useGSAP);
 
 const NavBar = () => {
   const { searchSubmitted, setSearchSubmitted } =
     useContext(SearchSubmitContext);
+  const [isNavVisible, setIsNavVisible] = useState(true); // Track navbar visibility
   const [toggle, setToggle] = useState(false);
+  const [hasScrolledPast, setHasScrolledPast] = useState(false);
+  const [initialStyleApplied, setInitialStyleApplied] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  let timeoutId = null; // For inactivity timeout
+  const navbarHeight = 260; // Adjust this value to match your navbar height
 
   const { contextSafe } = useGSAP();
 
@@ -29,6 +35,123 @@ const NavBar = () => {
   const handleClick = () => {
     setToggle((prevToggle) => !prevToggle); // Use function form to ensure correct state
   };
+
+  const applyInitialNavbarStyle = contextSafe(() => {
+    const scrollY = window.scrollY;
+    if (scrollY > navbarHeight) {
+      if (!initialStyleApplied) {
+        setInitialStyleApplied(true);
+        gsap.to(".nav-bar", {
+          background: `linear-gradient(to bottom, #4B502D calc(0%), #E1B40C calc(300%))`,
+          y: 0,
+          opacity: 1,
+          duration: 1,
+        });
+      }
+      setSearchSubmitted(true);
+      setHasScrolledPast(true);
+      animateBurgerMenu({
+        background: `linear-gradient(to bottom, #4B502D calc(-50%), #E1B40C calc(110%))`,
+      });
+    } else if (scrollY <= navbarHeight) {
+      if (!initialStyleApplied) {
+        setInitialStyleApplied(true);
+        animateNavBar(
+          {
+            background: "transparent",
+            y: -200,
+            opacity: 0,
+          },
+          { y: 0, opacity: 1, duration: 1, ease: "power2.out", delay: 1.3 }
+        );
+      }
+      setSearchSubmitted(false);
+      setHasScrolledPast(false);
+      animateBurgerMenu({
+        background: `linear-gradient(to right, #4B502D calc(-20%), #E1B40C calc(120%))`,
+      });
+    }
+  });
+
+  const handleScroll = contextSafe(
+    debounce(() => {
+      if (timeoutId) clearTimeout(timeoutId); // Clear any existing timeout
+      const scrollY = window.scrollY;
+
+      if (scrollY > navbarHeight && !hasScrolledPast) {
+        // If the user scrolls past the navbar height and it hasn't animated yet
+        setSearchSubmitted(true);
+        ``;
+        animateNavBar(
+          {
+            background: `linear-gradient(to bottom, #4B502D calc(0%), #E1B40C calc(300%))`,
+            y: -200,
+            opacity: 0,
+          },
+          { y: 0, opacity: 1, duration: 1, ease: "power2.out" }
+        );
+        setHasScrolledPast(true);
+      } else if (scrollY <= navbarHeight && hasScrolledPast) {
+        // If the user scrolls back up to the top and it has animated
+        setSearchSubmitted(false);
+        animateNavBar(
+          {
+            background: "transparent",
+            y: -200,
+            opacity: 0,
+          },
+          { y: 0, opacity: 1, duration: 1, ease: "power2.out" }
+        );
+        setHasScrolledPast(false);
+      }
+
+      timeoutId = setTimeout(() => {
+        if (scrollY > navbarHeight) {
+          setIsNavVisible(false); // Hide the navbar if scrolling and idle
+          gsap.to(".nav-bar", {
+            opacity: 0,
+            duration: 0.5,
+            ease: "power4.out",
+          });
+        }
+      }, 4000); // Adjust the idle time (in milliseconds) as needed
+
+      if (!isNavVisible) {
+        setIsNavVisible(true);
+        gsap.to(".nav-bar", {
+          opacity: 1,
+          duration: 0.5,
+          ease: "power4.out",
+        });
+      }
+    }, 200)
+  );
+
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === "/") {
+      // Add scroll event listener on mount
+      window.addEventListener("scroll", handleScroll);
+
+      // Clean up the event listener on unmount
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+        if (timeoutId) clearTimeout(timeoutId); // Clear timeout on unmount
+      };
+    } else {
+      setInitialStyleApplied(false);
+      setSearchSubmitted(true);
+
+      animateNavBar(
+        {
+          y: -200,
+          background: `linear-gradient(to bottom, #4B502D calc(0%), #E1B40C calc(300%)`,
+          opacity: 0,
+        },
+        { y: 0, opacity: 1, duration: 1, ease: "power2.out", delay: 1.3 }
+      );
+    }
+  }, [hasScrolledPast, isNavVisible, location.pathname]);
 
   useEffect(() => {
     const tl = gsap.timeline({ defaults: { duration: 1 } });
@@ -58,60 +181,23 @@ const NavBar = () => {
   }, [toggle]);
 
   useEffect(() => {
-    const path = location.pathname;
-
-    if (path === "/") {
-      setSearchSubmitted(false);
-      animateNavBar(
-        { opacity: 0 },
-        {
-          background: "transparent",
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          ease: "power2.out",
-          delay: 1,
-        }
-      );
-      animateBurgerMenu({
-        background: `linear-gradient(to bottom, #0F2B9C calc(-11vh), #673D7D calc(20vh), #A74A67 calc(46vh))`,
-      });
-    } else if (
-      path === "/about" ||
-      path === "/searchResults" ||
-      path === "/contact"
-    ) {
-      setSearchSubmitted(true);
-      animateNavBar(
-        {
-          y: -200,
-          background: `linear-gradient(to bottom, #0F2B9C calc(-3vh), #673D7D calc(20vh))`,
-          opacity: 0,
-          delay: 1,
-        },
-        { y: 0, opacity: 1, duration: 1, ease: "power2.out", delay: 1.3 }
-      );
-      animateBurgerMenu({
-        background: `linear-gradient(to bottom, #0F2B9C calc(-15vh), #673D7D calc(20vh))`,
-      });
+    if (location.pathname === "/") {
+      applyInitialNavbarStyle();
     }
-    // Add more cases as necessary for different pages
-  }, [location]);
+  }, [hasScrolledPast, location.pathname]);
 
   return (
     <div className="nav-bar fixed top-0 left-0 w-full h-[60px] bg-transparent z-50 px-0 opacity-0">
-      <div className="md:max-w-full max-w-[600px] m-auto w-full h-full flex justify-between items-center md:px-12 px-4 text-gray-300">
+      <div className="md:max-w-full max-w-[600px] w-full h-full flex justify-between items-center md:px-12 px-4">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 944.57 466.92"
-          className="h-[80%] hover:cursor-pointer hover:scale-110 transform transition-transform duration-300"
+          className="beta-logo h-[80%] hover:cursor-pointer hover:scale-110 transform transition-transform duration-300"
           onClick={() => navigate("/")}
         >
           <defs>
             <style>
               {`.cls-2 {
-              fill: #e4e4e4;
-              stroke: #e4e4e4;
               stroke-miterlimit: 10;
               stroke-width: 11.65px;
               shadow: 0 0 100px rgba(0, 0, 0, 0.5);
@@ -171,13 +257,16 @@ const NavBar = () => {
             </Link>
           </li>
           <li className="mobile-link p-4">
-            <Link to="/about" className="hover:underline hover:text-white px-1">
+            <Link
+              to="/#about"
+              className="hover:underline hover:text-white px-1"
+            >
               About
             </Link>
           </li>
           <li className="mobile-link p-4">
             <Link
-              to="/contact"
+              to="/#contact"
               className="hover:underline hover:text-white px-1"
             >
               Contact

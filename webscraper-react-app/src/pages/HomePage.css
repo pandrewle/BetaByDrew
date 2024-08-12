@@ -6,142 +6,78 @@ body {
     box-sizing: border-box;
 }
 
-@font-face {
-  font-family: "TT Norms Pro Bold";
-  src: url(../fonts/Fontspring-DEMO-tt_norms_pro_bold.otf);
-}
-
-@font-face {
-  font-family: "TT Norms Pro Normal";
-  src: url(../fonts/Fontspring-DEMO-tt_norms_pro_normal.otf);
-}
-
 :root {
-    --primaryColor: #282a57;
-    --secondaryColor: #e4e4e4;
+    --primaryColor: #20201D;
+    --secondaryColor: #f5f5f4;
+    --primaryAccent: #4B502D;
+    --secondaryAccent: #E1B40C;
 }
 
 body {
     font-family: 'Montserrat', sans-serif;
-    background-color: #282a57;
-    color: #e4e4e4;
+    background-color: var(--primaryColor);
+    color: var(--secondaryColor);
 }
 
-.parallax-outer {
-  height: 100vh;
-  overflow: hidden;
-}
-
-.parallax {
-    height: 110vh;
-    width: 100%;
-    position: relative;
-}
-
-.parallax img {
-    position: absolute;
-}
-
-.mountain-3,
-.mountain-2,
-.mountain-1 {
-    width: 100%;
-    bottom: 0;
-    z-index: 3;
-}
-
-.mountain-2 {
-    bottom: 20px;
-    z-index: 2;
-}
-
-.mountain-1 {
-    bottom: 40px;
-    z-index: 1;
-}
-
-.sun {
-    top: 70%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40%;
-}
-
-.clouds-left {
-    left: 0;
-    width: 20%;
-}
-
-.clouds-right {
-    right: 0;
-    width: 20%;
-}
-
-.clouds-bottom {
-    bottom: 0px;
-    width: 100%;
-}
-
-.stars {
-    top: -550px;
-    left: 0;
-    width: 100%;
-}
-
-.copy {
-  position: absolute;
-  bottom: 0%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 0;
-  color: var(--secondaryColor);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  opacity: 0;
+.beta-logo {
+  fill: var(--secondaryColor);
+  stroke: var(--secondaryColor);
 }
 
 .hero {
+  width: 100vw;
+  height: 110vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  color: var(--secondaryColor);
+  overflow: hidden;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+}
+
+.blur-overlay {
+  position: absolute;
+  bottom: -5vh;
+  width: 110%;
+  height: 10vh;
+  background: var(--primaryColor); /* Use your CSS variable here */
+  filter: blur(15px);
+  opacity: 1; /* Adjust opacity as needed */
+  z-index: 10;
+}
+
+.hero-text-container {
   width: 100%;
   height: 600px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  opacity: 0;
+  opacity: 1;
 }
 
 .hero-text {
-  font-size: 2rem;
-  font-family: "TT Norms Pro Bold";
   font-size: 40px;
+  font-weight: 700;
   text-align: center;
+  z-index: 1;
 }
 
 .wrap {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 4; /* Ensure it stays above other elements */
-  font-family: "TT Norms Pro Normal";
+  z-index: 1; /* Ensure it stays above other elements */
 }
 
 .aboutpage-container {
-  background-color: #282a57;
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #2b2929;
-  border-radius: 5px;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background-color: var(--primaryColor);
 }

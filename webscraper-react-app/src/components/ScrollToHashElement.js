@@ -17,7 +17,6 @@ const ScrollToHashElement = () => {
     }
     return null;
   }, [location]);
-
   useEffect(() => {
     if (hashElement) {
       // Apply blur effect to the body or a wrapper element
