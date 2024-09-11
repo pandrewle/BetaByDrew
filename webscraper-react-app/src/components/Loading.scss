@@ -9,7 +9,6 @@ $primary-black: #e4e4e4;
 
 html,
 body {
-  background-color: rgb(32, 34, 36);
   background-image: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
   display: flex;
   flex-direction: column;
@@ -19,12 +18,10 @@ body {
 
 .loading-wrapper {
   display: flex;
-  width: 100vw;
-  height: 100vh;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgb(32, 34, 36);
-  padding: 1rem;
+
   border-radius: 0.5rem;
   backdrop-filter: blur(50px);
   opacity: 0.97;

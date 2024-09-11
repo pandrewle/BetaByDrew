@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, useAnimation } from "framer-motion";
 import "./Loading.scss";
+import TextCarousel from "./TextCarousel";
 
 const eases = {
   power2InOut: [0.4, 0.0, 0.2, 1.0],
@@ -182,7 +183,7 @@ const CountAnimation = ({ delay = 1500, isPending, handleCompletion }) => {
   );
 };
 
-const Loader = ({ isPending, onLoadComplete }) => {
+const Loader = ({ isPending, setDisplayLoader }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -190,7 +191,8 @@ const Loader = ({ isPending, onLoadComplete }) => {
     setFadeOut(true);
     setTimeout(() => {
       setIsLoaded(true);
-      onLoadComplete();
+      setDisplayLoader(false);
+      console.log("Loader is complete");
     }, 700); // Match duration of the fade-out transition
   };
 
@@ -224,6 +226,7 @@ const Loader = ({ isPending, onLoadComplete }) => {
             <TargetSVG />
           </div>
         </div>
+        <TextCarousel />
       </motion.div>
     </div>
   );

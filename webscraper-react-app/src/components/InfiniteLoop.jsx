@@ -1,28 +1,43 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollToPlugin);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 export const useInfiniteLoop = (
-  results,
-  animatedItems,
+  results, // Set default value as an empty array
+  animatedItems, // Set default value as an empty array for the ref
   spacing,
   containerRef
 ) => {
   const iteration = useRef(0);
   const snap = gsap.utils.snap(spacing);
   const isInitialized = useRef(false);
-  const result = useRef(results);
-  console.log("starting");
-  console.log(results);
+
+  const getMaxCardHeight = () => {
+    console.log("calculating max height");
+    if (animatedItems.current && results && results.length > 0) {
+      const validItems = animatedItems.current.filter((item) => item !== null);
+
+      if (validItems.length > 0) {
+        const maxHeight = Math.max(
+          ...validItems.map((item) => item.offsetHeight)
+        );
+        console.log("maxHeight: ", maxHeight);
+
+        return maxHeight;
+      } else {
+        console.log("No valid items to calculate maximum height");
+      }
+    }
+    return 0; // Return 0 if there are no valid items or results
+  };
 
   useGSAP(
     (context, contextSafe) => {
       const buildInfiniteLoop = contextSafe(() => {
-        const totalScrollLength = animatedItems.length * 1000;
-        const seamlessLoop = buildSeamlessLoop(animatedItems, spacing);
+        const totalScrollLength = animatedItems.current.length * 1000;
+        const seamlessLoop = buildSeamlessLoop(animatedItems.current, spacing);
         const scrub = gsap.to(seamlessLoop, {
           totalTime: 0,
           duration: 0.5,
@@ -33,22 +48,43 @@ export const useInfiniteLoop = (
         gsap.matchMedia().add(
           {
             // Define the breakpoints and corresponding settings
-            isMobile: "(max-width: 767px)",
-            isDesktop: "(min-width: 1024px)",
+            isMobileSmall: "(max-width: 479px)", // Small mobile devices
+            isMobileMedium: "(min-width: 480px) and (max-width: 767px)", // Medium mobile devices
+            isMobileLarge: "(min-width: 768px) and (max-width: 1023px)", // Large mobile devices / Tablets
+            isTablet: "(min-width: 1024px) and (max-width: 1279px)", // Tablets
+            isDesktopSmall: "(min-width: 1280px) and (max-width: 1439px)", // Small desktops
+            isDesktopMedium: "(min-width: 1440px) and (max-width: 1919px)", // Medium desktops
+            isDesktopLarge: "(min-width: 1920px)", // Large desktops
           },
           (context) => {
             let trigger;
-            if (context.conditions.isMobile) {
+            const maxHeight = getMaxCardHeight();
+            animatedItems.current.forEach((item) => {
+              gsap.set(item, { height: `${maxHeight}px` });
+            });
+            if (
+              context.conditions.isMobileSmall ||
+              context.conditions.isMobileMedium ||
+              context.conditions.isMobileLarge
+            ) {
+              console.log("mobile");
+              gsap.set(containerRef.current, {
+                paddingBottom: `${1.5 * maxHeight}px`,
+              });
+              gsap.set(animatedItems.current, {
+                marginLeft: "1rem",
+                position: "absolute",
+              });
               // Mobile-specific ScrollTrigger configuration
               trigger = ScrollTrigger.create({
-                start: "bottom center",
-                end: `+=${totalScrollLength} top`,
-                pin: containerRef, // Use mobile-specific pin element
+                start: "bottom bottom",
+                end: `+=${totalScrollLength}`,
+                pin: containerRef.current, // Use mobile-specific pin element
                 scrub: 1,
                 markers: true,
                 onUpdate(self) {
                   const progress = self.progress;
-                  if (progress > 0.8 && self.direction > 0 && !self.wrapping) {
+                  if (progress > 0.95 && self.direction > 0 && !self.wrapping) {
                     wrapForward(self);
                   } else {
                     scrub.vars.totalTime = snap(
@@ -59,12 +95,23 @@ export const useInfiniteLoop = (
                   }
                 },
               });
-            } else if (context.conditions.isDesktop) {
+            } else if (
+              context.conditions.isTablet ||
+              context.conditions.isDesktopSmall ||
+              context.conditions.isDesktopMedium ||
+              context.conditions.isDesktopLarge
+            ) {
+              console.log("desktop");
+              gsap.set(containerRef.current, { paddingBottom: "0" });
+              gsap.set(animatedItems.current, {
+                position: "absolute",
+                marginLeft: "0",
+              });
               // Desktop-specific ScrollTrigger configuration
               trigger = ScrollTrigger.create({
                 start: "bottom bottom",
                 end: `+=${totalScrollLength}`,
-                pin: containerRef, // Use desktop-specific pin element
+                pin: containerRef.current, // Use desktop-specific pin element
                 scrub: 1,
                 markers: true,
                 onUpdate(self) {
@@ -231,17 +278,38 @@ export const useInfiniteLoop = (
           return seamlessLoop;
         }
       });
-      // const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-      if (
-        animatedItems &&
-        results &&
-        results.length > 1 &&
-        !isInitialized.current
-      ) {
+      if (results && results.length === 0) return;
+      console.log("updating");
+      // Clear animatedItems on results change
+      animatedItems.current = [];
+
+      // Rebuild the animated items from the updated results
+      results.forEach((_, index) => {
+        const item = document.getElementById(`item-${index}`);
+        if (item) {
+          animatedItems.current.push(item);
+        }
+      });
+
+      // Rebuild the infinite loop
+      console.log(animatedItems.current.length);
+      console.log(isInitialized.current);
+      if (animatedItems.current.length > 1 && !isInitialized.current) {
+        console.log("building infinite loop");
+        // alignCardHeights();
         buildInfiniteLoop();
-        isInitialized.current = true; // Mark as initialized
+        isInitialized.current = true;
+        console.log("initialized: ", isInitialized.current);
+        console.log("context after bulding infinite loop: ", context);
+      } else {
+        // Clean up when there are no valid items
+        console.log("clearing context: ", context);
+        isInitialized.current = false;
       }
     },
-    [results]
+    {
+      dependencies: [animatedItems.current, results],
+      revertOnUpdate: true,
+    }
   );
 };

@@ -9,11 +9,10 @@ import { useInfiniteLoop } from "../components/InfiniteLoop";
 
 function SearchResults() {
   const [isPending, setIsPending] = useState(true);
-  const [results, setResults] = useState(null);
+  const [results, setResults] = useState([]);
   const [displayLoader, setDisplayLoader] = useState(true);
   const cardRefs = useRef([]);
   const container = useRef(null);
-
   const spacing = 0.1; // spacing of the cards (stagger)
 
   const location = useLocation();
@@ -28,7 +27,6 @@ function SearchResults() {
       if (savedResults) {
         setResults(JSON.parse(savedResults));
         setIsPending(false);
-        setDisplayLoader(false);
       } else {
         setIsPending(true);
         setDisplayLoader(true);
@@ -48,13 +46,11 @@ function SearchResults() {
             setResults(data);
             localStorage.setItem(input, JSON.stringify(data));
             setIsPending(false);
-            setDisplayLoader(false);
           })
           .catch((error) => {
             if (error.name !== "AbortError") {
               console.error("Error fetching search results: ", error);
               setIsPending(false);
-              setDisplayLoader(false);
             }
           });
 
@@ -68,66 +64,40 @@ function SearchResults() {
     }
   }, [input]);
 
-  const mockResults = [
-    {
-      logo: "https://via.placeholder.com/150", // Replace with actual image URL or use a placeholder
-      websiteName: "Website A",
-      product: "Product A",
-      price: 19.99,
-      productUrl: "#",
-      productSizes: ["S", "M", "L"],
-    },
-    {
-      logo: "https://via.placeholder.com/150",
-      websiteName: "Website B",
-      product: "Product B",
-      price: 24.99,
-      productUrl: "#",
-      productSizes: ["S", "M"],
-    },
-    {
-      logo: "https://via.placeholder.com/150",
-      websiteName: "Website C",
-      product: "Product C",
-      price: 29.99,
-      productUrl: "#",
-      productSizes: ["L", "XL"],
-    },
-    {
-      logo: "https://via.placeholder.com/150",
-      websiteName: "Website D",
-      product: "Product D",
-      price: 34.99,
-      productUrl: "#",
-      productSizes: ["M", "L", "XL"],
-    },
-    {
-      logo: "https://via.placeholder.com/150",
-      websiteName: "Website E",
-      product: "Product E",
-      price: 39.99,
-      productUrl: "#",
-      productSizes: ["XS", "S"],
-    },
-  ];
-
-  useInfiniteLoop(results, cardRefs.current, spacing, container.current);
+  useInfiniteLoop(results, cardRefs, spacing, container);
 
   return (
     <>
       <div className="pinned-container" ref={container}>
         <div className="SearchResults flex flex-col lg:flex-col gap-0 lg:items-center lg:justify-start p-4">
-          {displayLoader && <Loader isPending={isPending} />}
+          {displayLoader && (
+            <div className="w-full h-[100vh] flex flex-col justify-center items-center">
+              <Loader
+                isPending={isPending}
+                setDisplayLoader={setDisplayLoader}
+              />
+            </div>
+          )}
           {!isPending && !displayLoader && (
             <>
-              <h1 className="header text-4xl font-bold mt-20 mb-8">
+              <h1 className="header text-4xl lg:text-3xl font-bold mt-20 mb-8">
                 Search Results for "{input}"
               </h1>
               <div className="Results flex flex-col justify-center items-center lg:flex-row lg:w-full lg:items-start">
-                {results && <ImageSlider results={results} />}
-                <div className="results-container lg:w-1/2 flex flex-col gap-8 justify-center items-center m-4 relative">
-                  <ResultsCard results={results} ref={cardRefs} />
-                </div>
+                {results && results.length === 0 && (
+                  <div className="text-center mt-8 text-2xl font-semibold p-8">
+                    Sorry, no results found for "{input}". Please try a
+                    different search term.
+                  </div>
+                )}
+                {results && results.length > 0 && (
+                  <>
+                    <ImageSlider results={results} />
+                    <div className="results-container w-full lg:w-1/2 flex flex-col gap-8 justify-center items-center m-8 relative">
+                      <ResultsCard results={results} ref={cardRefs} />
+                    </div>
+                  </>
+                )}
               </div>
             </>
           )}

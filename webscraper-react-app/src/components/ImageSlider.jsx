@@ -17,7 +17,7 @@ const ImageSlider = ({ results }) => {
 
   return (
     <div className="flex flex-col mx-8 lg:flex-row justify-center items-center gap-4 lg:w-1/2">
-      <div className="flex flex-row lg:flex-col lg:items-center justify-center gap-2 lg:gap-2 lg:w-1/6 order-2 lg:order-1 overflow-x-auto lg:overflow-y-auto flex-wrap">
+      <div className="flex flex-row lg:flex-col lg:items-end justify-center gap-2 lg:gap-2 lg:w-1/6 order-2 lg:order-1 overflow-x-auto lg:overflow-y-auto flex-wrap">
         {images.map((image, idx) => (
           <img
             key={idx}
@@ -34,8 +34,8 @@ const ImageSlider = ({ results }) => {
           />
         ))}
       </div>
-      <div className="=w-full lg:w-[75%] order-1 lg:order-2">
-        <div className="max-w-full max-h-full w-[400px] h-[400px] lg:w-[500px] lg:h-[500px] overflow-hidden flex items-center justify-center mx-auto relative">
+      <div className="w-full lg:w-5/6 order-1 lg:order-2">
+        <div className="max-w-full max-h-full w-[400px] h-[400px] lg:w-[500px] lg:h-[500px] overflow-hidden flex items-center justify-center relative">
           <img
             src={images[imageIndex]}
             alt="Active Product"

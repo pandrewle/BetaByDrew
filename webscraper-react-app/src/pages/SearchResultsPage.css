@@ -5,7 +5,17 @@
   --primaryAccent: #4B502D;
   --secondaryAccent: #E1B40C;
 }
+
+body, html {
+  background-color: var(--primaryColor); /* Replace with your desired color */
+}
+
 .pin-spacer {
+  background-color: var(--primaryColor);
+}
+
+.pinned-container {
+  overflow: hidden;
   background-color: var(--primaryColor);
 }
 
@@ -18,7 +28,6 @@
 }
 
 .header {
-  font-size: 1.5rem; /* 24px (1.5 * 16) */
   text-align: center;
   color: var(--secondaryColor);
 }
@@ -60,8 +69,7 @@
   border: 0.0625rem solid #ccc; /* 1px = 0.0625rem */
   border-radius: 0.25rem; /* 4px / 16 = 0.25rem */
   margin: 0.3125rem; /* 5px / 16 = 0.3125rem */
-  padding: 0.3125rem 0.625rem; /* 5px and 10px to rem */
-  font-size: 0.875rem; /* 14px / 16 = 0.875rem */
+  font-size: .875rem; /* 14px / 16 = 0.875rem */
   transition: background 0.25s, box-shadow 0.25s;
 }
 
@@ -77,10 +85,6 @@
 }
 
 @media (max-width: 768px) {
-  .header {
-    font-size: 1.25rem; /* Decrease header font size for smaller screens */
-  }
-
   .result-item {
     border-radius: 0.5rem; /* Slightly smaller border radius */
   }
@@ -95,7 +99,7 @@
   }
 
   .size-item {
-    font-size: 0.75rem; /* Smaller font size for sizes */
+    font-size: 0.8rem; /* Smaller font size for sizes */
     padding: 0.25rem 0.5rem; /* Decrease padding */
   }
 
@@ -106,10 +110,4 @@
     width: 100%;
   }
 
-  .result-item {
-    position: absolute;
-    margin: 1rem 2rem 2rem 2rem;
-    left: auto;
-    top: auto;
-  }
 }

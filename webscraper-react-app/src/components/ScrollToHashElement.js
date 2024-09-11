@@ -20,12 +20,13 @@ const ScrollToHashElement = () => {
   useEffect(() => {
     if (hashElement) {
       // Apply blur effect to the body or a wrapper element
+      console.log("hashElement", hashElement);
       gsap.to(window, {
         duration: 0.5,
         scrollTo: { y: hashElement, autoKill: true },
         ease: "power4.out",
       });
-    } else {
+    } else if (location.pathname === "/") {
       gsap.to(window, {
         duration: 0.5,
         scrollTo: { y: 0, autoKill: true },

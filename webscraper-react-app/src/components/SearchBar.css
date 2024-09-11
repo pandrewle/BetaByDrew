@@ -2,6 +2,14 @@ body {
     overflow-x: hidden;
   }
 
+  .wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; /* Ensure it stays above other elements */
+  }
+
 .divONE {
     box-sizing: border-box;
     flex: 1 1 100%;
@@ -13,7 +21,7 @@ body {
     display: flex;
     align-items: center;
     --padding: 12px;
-    width: 40vw;
+    width: 45vw;
     padding: var(--padding);
     border-radius: 28px;
     background: #f6f6f6;

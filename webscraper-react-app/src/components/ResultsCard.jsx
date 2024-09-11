@@ -12,7 +12,8 @@ const ResultsCard = forwardRef((props, ref) => {
           .map((result, index) => (
             <div
               key={index}
-              className={`result-item lg:absolute p-4 flex flex-col justify-center gap-1 lg:gap-4 w-[80%] rounded-md transform ${
+              id={`item-${index}`}
+              className={`result-item p-4 flex flex-col justify-center gap-1 lg:gap-4 w-[80%] rounded-md transform ${
                 index === 0 ? "z-10" : "z-0"
               }`}
               ref={(el) => (cardRefs.current[index] = el)}
@@ -24,7 +25,7 @@ const ResultsCard = forwardRef((props, ref) => {
             >
               {index === 0 && (
                 <div className="flex w-full items-start justify-end mb-4">
-                  <span className="absolute top-0 right-0 bg-secondaryaccent text-white text-s font-bold py-1 px-2 rounded-tr-md rounded-bl-md">
+                  <span className="lowest-price-tag absolute top-0 right-0 bg-secondaryaccent text-white text-s font-bold py-1 px-2 rounded-tr-md rounded-bl-md">
                     Lowest Price!
                   </span>
                 </div>
@@ -39,10 +40,10 @@ const ResultsCard = forwardRef((props, ref) => {
                   <h2 className="text-xl font-bold">{result.product}</h2>
                   <p className="text-xl font-bold text-secondaryaccent">
                     ${result.discountedPrice}
-                    <span className="text-lg text-gray-400 font-normal line-through decoration-1 ml-2">
+                    <span className="text-lg text-gray-400 font-normal line-through decoration-1 mx-2">
                       ${result.fullPrice}
                     </span>
-                    <span className="bg-secondaryaccent bg-opacity-20 inline-block rounded-lg ml-2 px-1">
+                    <span className="bg-secondaryaccent bg-opacity-20 inline-block rounded-lg px-1">
                       <span className="text-lg text-secondaryaccent">
                         Save {result.discount}%
                       </span>
@@ -66,7 +67,7 @@ const ResultsCard = forwardRef((props, ref) => {
                   result.productSizes.map((size, sizeIndex) => (
                     <span
                       key={sizeIndex}
-                      className="size-item px-2 py-1 border rounded-md"
+                      className="size-item px-2 py-1 border rounded-md w-9 h-7 lg:w-10 lg:h-8 flex items-center justify-center"
                     >
                       {size}
                     </span>
