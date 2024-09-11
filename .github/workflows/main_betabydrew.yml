@@ -42,4 +42,13 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
-          name: node
+          name: node-app  # This matches the name of the uploaded artifact
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v2
+        id: deploy-to-webapp
+        with:
+          app-name: 'betabydrew'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2C0E9227A83D49FEA3038833B8F93D37 }}
+          package: ./webscraper-react-app
