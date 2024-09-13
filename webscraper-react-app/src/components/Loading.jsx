@@ -192,7 +192,7 @@ const Loader = ({ isPending, setDisplayLoader }) => {
     setTimeout(() => {
       setIsLoaded(true);
       setDisplayLoader(false);
-      console.log("Loader is complete");
+      // console.log("Loader is complete");
     }, 700); // Match duration of the fade-out transition
   };
 

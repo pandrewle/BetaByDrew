@@ -15,7 +15,7 @@ export const useInfiniteLoop = (
   const isInitialized = useRef(false);
 
   const getMaxCardHeight = () => {
-    console.log("calculating max height");
+    // console.log("calculating max height");
     if (animatedItems.current && results && results.length > 0) {
       const validItems = animatedItems.current.filter((item) => item !== null);
 
@@ -23,7 +23,7 @@ export const useInfiniteLoop = (
         const maxHeight = Math.max(
           ...validItems.map((item) => item.offsetHeight)
         );
-        console.log("maxHeight: ", maxHeight);
+        // console.log("maxHeight: ", maxHeight);
 
         return maxHeight;
       } else {
@@ -67,7 +67,7 @@ export const useInfiniteLoop = (
               context.conditions.isMobileMedium ||
               context.conditions.isMobileLarge
             ) {
-              console.log("mobile");
+              // console.log("mobile");
               gsap.set(containerRef.current, {
                 paddingBottom: `${1.5 * maxHeight}px`,
               });
@@ -101,7 +101,7 @@ export const useInfiniteLoop = (
               context.conditions.isDesktopMedium ||
               context.conditions.isDesktopLarge
             ) {
-              console.log("desktop");
+              // console.log("desktop");
               gsap.set(containerRef.current, { paddingBottom: "0" });
               gsap.set(animatedItems.current, {
                 position: "absolute",
@@ -279,7 +279,7 @@ export const useInfiniteLoop = (
         }
       });
       if (results && results.length === 0) return;
-      console.log("updating");
+      // console.log("updating");
       // Clear animatedItems on results change
       animatedItems.current = [];
 
@@ -292,18 +292,18 @@ export const useInfiniteLoop = (
       });
 
       // Rebuild the infinite loop
-      console.log(animatedItems.current.length);
-      console.log(isInitialized.current);
+      // console.log(animatedItems.current.length);
+      // console.log(isInitialized.current);
       if (animatedItems.current.length > 1 && !isInitialized.current) {
-        console.log("building infinite loop");
+        // console.log("building infinite loop");
         // alignCardHeights();
         buildInfiniteLoop();
         isInitialized.current = true;
-        console.log("initialized: ", isInitialized.current);
-        console.log("context after bulding infinite loop: ", context);
+        // console.log("initialized: ", isInitialized.current);
+        // console.log("context after bulding infinite loop: ", context);
       } else {
         // Clean up when there are no valid items
-        console.log("clearing context: ", context);
+        // console.log("clearing context: ", context);
         isInitialized.current = false;
       }
     },

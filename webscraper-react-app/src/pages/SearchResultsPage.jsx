@@ -22,44 +22,66 @@ function SearchResults() {
   useEffect(() => {
     const abortController = new AbortController();
     const signal = abortController.signal;
+
     if (input) {
-      const savedResults = localStorage.getItem(input);
-      if (savedResults) {
-        setResults(JSON.parse(savedResults));
-        setIsPending(false);
-      } else {
-        setIsPending(true);
-        setDisplayLoader(true);
-        fetch("http://127.0.0.1:5000/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ product: input }),
-          signal: signal,
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            setResults(data);
-            localStorage.setItem(input, JSON.stringify(data));
-            setIsPending(false);
-          })
-          .catch((error) => {
-            if (error.name !== "AbortError") {
-              console.error("Error fetching search results: ", error);
-              setIsPending(false);
-            }
+      setIsPending(true);
+      setDisplayLoader(true);
+
+      const fetchData = async () => {
+        try {
+          const response = await fetch("http://127.0.0.1:5000/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ product: input }),
+            signal: signal,
           });
 
-        return () => {
-          abortController.abort();
-        };
-      }
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let resultString = "";
+          let newResults = [];
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            resultString += decoder.decode(value, { stream: true });
+
+            // Process each chunk
+            resultString.split("\n").forEach((line) => {
+              if (line) {
+                try {
+                  const json = JSON.parse(line);
+                  if (json.results) {
+                    newResults = json.results;
+                  }
+                  // Handle other data if necessary
+                } catch (e) {
+                  console.error("Error parsing JSON:", e);
+                }
+              }
+            });
+          }
+
+          setResults(newResults);
+          localStorage.setItem(input, JSON.stringify(newResults));
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            console.error("Error fetching search results: ", error);
+          }
+        } finally {
+          setIsPending(false);
+        }
+      };
+
+      fetchData();
+
       return () => {
-        abortController.abort(); // Ensure fetch is aborted if the component unmounts
+        abortController.abort();
       };
     }
   }, [input]);
