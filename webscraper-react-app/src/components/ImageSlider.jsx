@@ -1,9 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+
+const proxyImageUrl = (url) =>
+  `http://127.0.0.1:5000/proxy-image?url=${encodeURIComponent(url)}`;
 
 const ImageSlider = ({ results }) => {
   const [imageIndex, setImageIndex] = useState(0);
-  const images = results[0].productImages;
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const fetchedImages = results[0].productImages.map((image) =>
+        proxyImageUrl(image)
+      );
+      const processedImages = await Promise.all(
+        fetchedImages.map(async (image) => {
+          try {
+            const response = await fetch(image);
+            if (!response.ok) throw new Error("Image fetch failed");
+            return image; // Return the proxied image URL if it is valid
+          } catch (error) {
+            // console.error(`Error fetching image ${image}: ${error.message}`);
+            return decodeURIComponent(image.split("url=")[1]); // Return the original URL if there is an error
+          }
+        })
+      );
+      setImages(processedImages);
+    };
+
+    fetchImages();
+  }, [results]);
 
   const handlePrev = () => {
     setImageIndex(

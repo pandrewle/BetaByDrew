@@ -12,7 +12,7 @@ const ExploreComponent = ({ isFullPage = false }) => {
   useEffect(() => {
     // Fetch products from the API
     const fetchProducts = async (section = 1) => {
-      console.log("Fetching products...");
+      // console.log("Fetching products...");
       try {
         const response = await fetch(
           `http://localhost:5000/explore?page=${section}&limit=9`
@@ -46,7 +46,7 @@ const ExploreComponent = ({ isFullPage = false }) => {
 
   return (
     <div className="explore-container bg-primarycolor flex flex-col gap-8 items-center lg:items-center lg:justify-start py-8">
-      <div className="explore-section flex flex-col gap-4 items-center md:px-16 px-8">
+      <div className="explore-section flex flex-col gap-4 items-center md:px-16 px-4">
         <h1 className="text-6xl font-extrabold text-center mt-12">Explore</h1>
         {exploreProducts.length > 0 ? (
           <div className="card-container grid grid-cols-2 lg:grid-cols-3 py-4 gap-4 lg:gap-6">
@@ -55,19 +55,21 @@ const ExploreComponent = ({ isFullPage = false }) => {
               .map((product, index) => (
                 <div
                   key={index}
-                  className="product-card lg:w-[450px] bg-secondarydark p-4 flex flex-col items-center justify-center rounded-md transform"
+                  className="product-card lg:max-w-[400px] bg-secondarydark p-4 gap-2 flex flex-col items-center justify-center rounded-md transform"
                 >
                   <a
                     href={product.productUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      src={product.productImages[0]}
-                      alt={product.product}
-                      className="w-[300px] h-[300px] lg:w-[375px] lg:h-[375px] object-fill py-4"
-                      loading="lazy"
-                    />
+                    <div className="w-full flex justify-center items-center max-h-[300px] md:h-[375px]">
+                      <img
+                        src={product.productImages[0]}
+                        alt={product.product}
+                        className="object-contain max-h-full max-w-full py-4"
+                        loading="lazy"
+                      />
+                    </div>
                   </a>
                   <div className="flex flex-col items-start justify-start gap-2 w-full lg:px-4">
                     <a
@@ -76,7 +78,7 @@ const ExploreComponent = ({ isFullPage = false }) => {
                       rel="noopener noreferrer"
                     >
                       {/* Set a fixed height for product name */}
-                      <h3 className="hover:underline text-xl font-bold lg:h-16 h-24">
+                      <h3 className="hover:underline text-xl font-bold h-32 lg:h-16 overflow-hidden">
                         {product.product}
                       </h3>
                     </a>
@@ -86,7 +88,7 @@ const ExploreComponent = ({ isFullPage = false }) => {
                       </span>
                     </span>
                     {/* Min height to ensure consistent spacing for price and discount section */}
-                    <p className="text-xl font-bold text-secondaryaccent lg:min-h-[40px]">
+                    <p className="text-xl font-bold text-secondaryaccent lg:min-h-[40px] flex flex-wrap">
                       ${product.discountedPrice}
                       <span className="text-lg text-gray-400 font-normal line-through decoration-1 ml-2">
                         ${product.fullPrice}
