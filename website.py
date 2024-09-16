@@ -3,6 +3,7 @@ from browser import NoMatchFoundException
 from difflib import SequenceMatcher
 import numpy as np
 
+
 class Website:
 
     def __init__(self, websiteName, logo, website, shared_image_list):
@@ -37,7 +38,8 @@ class Website:
     def close(self):
         self.web.driver.quit()
 
-def filter_results_by_similarity(results, threshold=0.7, deviation_threshold=1.25):
+
+def filter_results_by_similarity(results, deviation_threshold=1.25):
     def preprocess_text(text):
         keywords_to_remove = ["Climbing Shoes", "Climbing Shoe", "-"]
         # Remove keywords and phrases from the text
@@ -50,9 +52,9 @@ def filter_results_by_similarity(results, threshold=0.7, deviation_threshold=1.2
     def get_similarity(a, b):
         return SequenceMatcher(None, a.lower(), b.lower()).ratio()
 
-    def average_word_similarity(product_name, other_product_name):
+    def average_word_similarity(name_of_product, other_product_name):
         # Split both product names into words
-        words_in_product = product_name.split()
+        words_in_product = name_of_product.split()
         words_in_other_product = other_product_name.split()
 
         # Compare each word in the first product against all words in the second product
@@ -66,10 +68,11 @@ def filter_results_by_similarity(results, threshold=0.7, deviation_threshold=1.2
         # Return the average similarity of the words
         return np.mean(similarities) if similarities else 0
 
-    def average_similarity_for_product(product_name, other_products):
-        similarities = [average_word_similarity(product_name, other_name['preprocessed_product']) for other_name in
+    def average_similarity_for_product(name_of_product, other_products):
+        similarities = [average_word_similarity(name_of_product, other_name['preprocessed_product']) for other_name in
                         other_products]
         return np.mean(similarities) if similarities else 0
+
     # Preprocess product names by removing keywords
     preprocessed_results = []
     for result in results:

@@ -22,22 +22,25 @@ app.config['SQLALCHEMY_DATABASE_URI'] = url
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
 class ProductSearch(db.Model):
     __tablename__ = 'product_search'
     id = db.Column(db.Integer, primary_key=True)
-    product = db.Column(db.String(255), unique=True, nullable=False)
+    product_name = db.Column(db.String(255), unique=True, nullable=False)
     result = db.Column(db.Text, nullable=False)  # Store JSON as text
     discount = db.Column(db.Float, nullable=False)
     last_searched = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
-        return f'<ProductSearch {self.product}>'
+        return f'<ProductSearch {self.product_name}>'
+
 
 with app.app_context():
     db.create_all()
 
-def search_website(websiteName, logo, url, product, shared_image_list):
-    site = Website(websiteName, logo, url, shared_image_list)
+
+def search_website(websiteName, logo, website_url, product, shared_image_list):
+    site = Website(websiteName, logo, website_url, shared_image_list)
     try:
         site.Search(product)
         return {
@@ -56,6 +59,8 @@ def search_website(websiteName, logo, url, product, shared_image_list):
 
 
 def scrape_and_search(product):
+    # noinspection PyGlobalUndefined
+    global cached_product
     try:
         # Step 1: Search the database for cached results
         yield json.dumps({"status": "Searching database for cached results"}) + "\n"
@@ -71,7 +76,6 @@ def scrape_and_search(product):
         if result:
             cached_product = result['product']
             cached_result_json = result['result']
-            cached_discount = result['discount']
             cached_last_searched = result['last_searched']
 
             if cached_last_searched.tzinfo is None:
@@ -99,7 +103,8 @@ def scrape_and_search(product):
             },
             "Rei": {
                 "websiteName": "Rei",
-                "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc.-Logo.wine.png",
+                "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc"
+                        ".-Logo.wine.png",
                 "url": "https://www.rei.com/"
             },
             "Public Lands": {
@@ -161,12 +166,9 @@ def scrape_and_search(product):
                 "last_searched": datetime.now(timezone.utc)
             })
         else:
-            new_result = ProductSearch(
-                product=product,
-                result=results_json,
-                discount=max_discount,
-                last_searched=datetime.now(timezone.utc)
-            )
+            new_result = ProductSearch(product_name=product, result=results_json, discount=max_discount,
+                                       last_searched=datetime.now(timezone.utc)
+                                       )
             db.session.add(new_result)
 
         try:
@@ -180,6 +182,7 @@ def scrape_and_search(product):
 
     except BrokenPipeError:
         print("Client disconnected. Scraping terminated early.")
+
 
 @app.route('/search', methods=['POST'])
 def search():
@@ -214,9 +217,10 @@ def proxy_image():
         # Determine the content type based on the response headers
         content_type = response.headers.get('Content-Type', 'image/jpeg')  # Default to 'image/jpeg'
         return send_file(BytesIO(response.content), mimetype=content_type)
-    except requests.RequestException as e:
+    except requests.RequestException:
         # print(f"Error fetching image: {e}")
         return Response(f"Failed to fetch image. Original URL: {image_url}", content_type='text/plain'), 500
+
 
 @app.route('/explore', methods=['GET'])
 def explore():
@@ -240,6 +244,7 @@ def explore():
     except Exception as e:
         print(f"Unexpected error: {e}")
         return jsonify({"error": "Internal server error"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=False)
