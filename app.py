@@ -154,7 +154,15 @@ def scrape_and_search(product):
             key=lambda x: float('inf') if float(x['discountedPrice']) == 0 else float(x['discountedPrice'])
         ))
 
-        max_discount = max([float(item['discount']) for item in results if item['discount']])
+        # Ensure results are not empty before calculating max_discount
+        if results:
+            discounts = [float(item['discount']) for item in results if item.get('discount')]
+            if discounts:
+                max_discount = max(discounts)
+            else:
+                max_discount = None  # or handle this case as needed
+        else:
+            max_discount = None  # Handle empty results list
 
         # Convert results to JSON string for storage
         results_json = json.dumps(results)
