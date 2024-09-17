@@ -26,13 +26,13 @@ migrate = Migrate(app, db)
 class ProductSearch(db.Model):
     __tablename__ = 'product_search'
     id = db.Column(db.Integer, primary_key=True)
-    product_name = db.Column(db.String(255), unique=True, nullable=False)
+    product = db.Column(db.String(255), unique=True, nullable=False)
     result = db.Column(db.Text, nullable=False)  # Store JSON as text
     discount = db.Column(db.Float, nullable=False)
     last_searched = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
-        return f'<ProductSearch {self.product_name}>'
+        return f'<ProductSearch {self.product}>'
 
 
 with app.app_context():
@@ -67,7 +67,7 @@ def scrape_and_search(product):
 
         query = text("""SELECT product, similarity(product, :product) AS sim_score, result, discount, last_searched
                         FROM product_search
-                        WHERE similarity(product, :product) > 0.8
+                        WHERE similarity(product, :product) > 0.9
                         ORDER BY sim_score DESC
                         LIMIT 1;""")
 
@@ -166,7 +166,7 @@ def scrape_and_search(product):
                 "last_searched": datetime.now(timezone.utc)
             })
         else:
-            new_result = ProductSearch(product_name=product, result=results_json, discount=max_discount,
+            new_result = ProductSearch(product=product, result=results_json, discount=max_discount,
                                        last_searched=datetime.now(timezone.utc)
                                        )
             db.session.add(new_result)
