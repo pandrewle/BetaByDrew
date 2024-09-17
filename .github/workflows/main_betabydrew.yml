@@ -52,4 +52,4 @@ jobs:
           app-name: 'betabydrew'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2C0E9227A83D49FEA3038833B8F93D37 }}
-          package: ./webscraper-react-app
+          package: ./webscraper-react-app/dist  # Include this to point to the correct folder
