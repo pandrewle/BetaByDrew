@@ -29,12 +29,15 @@ function SearchResults() {
 
       const fetchData = async () => {
         try {
-          const response = await fetch("http://127.0.0.1:5000/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ product: input }),
-            signal: signal,
-          });
+          const response = await fetch(
+            "https://beta-by-drew-d328f6616559.herokuapp.com/search",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ product: input }),
+              signal: signal,
+            }
+          );
 
           if (!response.ok) {
             throw new Error("Network response was not ok");

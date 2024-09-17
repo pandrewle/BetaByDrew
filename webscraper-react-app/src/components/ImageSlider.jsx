@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const proxyImageUrl = (url) =>
-  `http://127.0.0.1:5000/proxy-image?url=${encodeURIComponent(url)}`;
+  `https://beta-by-drew-d328f6616559.herokuapp.com/proxy-image?url=${encodeURIComponent(
+    url
+  )}`;
 
 const ImageSlider = ({ results }) => {
   const [imageIndex, setImageIndex] = useState(0);

@@ -15,7 +15,7 @@ const ExploreComponent = ({ isFullPage = false }) => {
       // console.log("Fetching products...");
       try {
         const response = await fetch(
-          `http://localhost:5000/explore?page=${section}&limit=9`
+          `https://beta-by-drew-d328f6616559.herokuapp.com/explore?page=${section}&limit=9`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch products");
