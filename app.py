@@ -69,7 +69,7 @@ def search_website(websiteName, logo, website_url, product, shared_image_list):
             "productSizes": site.sizes
         }
     except Exception as e:
-        app.logger.error(f"Error in search_website for {websiteName}: {e}")
+        app.logger.error(f"Error in search_website for {websiteName}: {e}", exc_info=True)
         return {
             "websiteName": websiteName,
             "error": str(e)
@@ -156,15 +156,14 @@ def scrape_and_search(product):
 
         # Step 3: Finalize results
         app.logger.info("Finalizing results")
-        results = filter_results_by_similarity(sorted(
-            results,
-            key=lambda x: float('inf') if float(x['discountedPrice']) == 0 else float(x['discountedPrice'])
-        ))
-
         if not results:
             app.logger.warning("No results found after scraping")
             yield json.dumps({"status": "No results found, returning error"}) + "\n"
             return
+        results = filter_results_by_similarity(sorted(
+            results,
+            key=lambda x: float('inf') if float(x['discountedPrice']) == 0 else float(x['discountedPrice'])
+        ))
 
         discounts = [float(item['discount']) for item in results if item.get('discount')]
         if discounts:

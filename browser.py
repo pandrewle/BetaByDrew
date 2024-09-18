@@ -1,54 +1,82 @@
+import logging
+import os
 import re
 import time
 from difflib import get_close_matches
 from urllib.parse import urlparse
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, TimeoutException, \
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    StaleElementReferenceException,
+    TimeoutException,
     ElementNotInteractableException
+)
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
-import os
 from webdriver_manager.chrome import ChromeDriverManager
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # Set to DEBUG for more detailed logs
+
+# Create a StreamHandler to output logs to stdout
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)  # Set to DEBUG for more detailed logs
+
+# Define a logging format
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+stream_handler.setFormatter(formatter)
+
+# Add the handler to the logger
+if not logger.hasHandlers():
+    logger.addHandler(stream_handler)
 
 
 class Browser:
     def __init__(self, url):
+        logger.info(f"Initializing Browser for URL: {url}")
         self.discount = None
         self.product = ""
         self.prices = []
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless=new")
-        options.add_argument('--disable-gpu')
-        options.add_argument("--window-size=1920,1080")
-        options.add_argument("--start-maximized")
-        # options.add_argument('--disk-cache-dir=/path/to/cache')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument("--incognito")
-        options.page_load_strategy = 'eager'
-        options.add_argument("--disable-extensions")
-        options.add_argument("user-agent=some_user_agent")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option("useAutomationExtension", False)
-        # Get Chrome binary and driver path from environment variables
-        chrome_bin_path = os.getenv("GOOGLE_CHROME_BIN", "/usr/bin/google-chrome")
-        chromedriver_path = os.getenv("CHROMEDRIVER_PATH", "/usr/local/bin/chromedriver")
+        try:
+            options = webdriver.ChromeOptions()
+            options.add_argument("--headless=new")
+            options.add_argument('--disable-gpu')
+            options.add_argument("--window-size=1920,1080")
+            options.add_argument("--start-maximized")
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument("--incognito")
+            options.page_load_strategy = 'eager'
+            options.add_argument("--disable-extensions")
+            options.add_argument("user-agent=some_user_agent")
+            options.add_argument("--disable-blink-features=AutomationControlled")
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            options.add_experimental_option("useAutomationExtension", False)
 
-        options.binary_location = chrome_bin_path
+            logger.debug("Setting up Chrome service with webdriver_manager")
+            service = ChromeService(executable_path=ChromeDriverManager().install())
 
-        # Set ChromeDriver service
-        service = ChromeService(executable_path=chromedriver_path)
-        self.driver = webdriver.Chrome(service=service, options=options)
-        self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-        self.driver.get(url)
-        self.wait = WebDriverWait(self.driver, 10)  # Increase explicit wait time
-        self.action = ActionChains(self.driver)
+            logger.debug("Initializing WebDriver with Chrome options")
+            self.driver = webdriver.Chrome(service=service, options=options)
+
+            logger.debug("Executing script to hide webdriver property")
+            self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+
+            logger.info(f"Navigating to URL: {url}")
+            self.driver.get(url)
+            self.wait = WebDriverWait(self.driver, 10)  # Increase explicit wait time
+            self.action = ActionChains(self.driver)
+            logger.info("Browser initialized successfully")
+
+        except Exception as e:
+            logger.error(f"Error initializing Browser: {e}", exc_info=True)
+            raise  # Re-raise the exception after logging
 
     def Search(self, product):
         self.product = product
