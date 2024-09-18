@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 import time
 from difflib import get_close_matches
@@ -25,7 +26,7 @@ logger.setLevel(logging.DEBUG)  # Set to DEBUG for more detailed logs
 
 # Create a StreamHandler to output logs to stdout
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)  # Changed from INFO to DEBUG
+stream_handler.setLevel(logging.DEBUG)  # Capture all logs
 
 # Define a logging format
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -58,14 +59,22 @@ class Browser:
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option("useAutomationExtension", False)
 
+            # Use environment variables provided by Heroku buildpacks
+            chrome_bin_path = os.getenv("GOOGLE_CHROME_BIN", "/usr/bin/google-chrome")
+            chromedriver_path = os.getenv("CHROMEDRIVER_PATH", "/usr/local/bin/chromedriver")
+
+            options.binary_location = chrome_bin_path
+            logger.debug(f"Chrome binary location set to: {chrome_bin_path}")
+            logger.debug(f"Chromedriver path set to: {chromedriver_path}")
+
+            service = ChromeService(executable_path=chromedriver_path)
             logger.debug("Setting up Chrome service with webdriver_manager")
-            service = ChromeService(executable_path=ChromeDriverManager().install())
 
-            logger.debug("Initializing WebDriver with Chrome options")
             self.driver = webdriver.Chrome(service=service, options=options)
+            logger.debug("Initializing WebDriver with Chrome options")
 
-            logger.debug("Executing script to hide webdriver property")
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+            logger.debug("Executing script to hide webdriver property")
 
             logger.info(f"Navigating to URL: {url}")
             self.driver.get(url)

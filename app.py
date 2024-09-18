@@ -13,8 +13,7 @@ from dotenv import load_dotenv
 import os
 import json
 
-import logging
-from logging.handlers import RotatingFileHandler
+from logging_config import setup_logging
 
 load_dotenv()
 
@@ -25,14 +24,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = url
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
-
-# Optionally, add a file handler (logs will be stored in app.log)
-file_handler = RotatingFileHandler('app.log', maxBytes=1000000, backupCount=3)
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
-app.logger.addHandler(file_handler)
+setup_logging()
 
 
 class ProductSearch(db.Model):
@@ -80,7 +72,6 @@ def search_website(websiteName, logo, website_url, product, shared_image_list):
 
 
 def scrape_and_search(product):
-    global cached_product
     try:
         app.logger.info(f"Starting scrape_and_search for product: {product}")
 
@@ -98,7 +89,7 @@ def scrape_and_search(product):
 
         if result:
             app.logger.info(f"Found cached result for product: {result['product']}")
-            cached_product = result['product']
+            cached_product = result['product']  # Local variable
             cached_result_json = result['result']
             cached_last_searched = result['last_searched']
 
@@ -123,7 +114,31 @@ def scrape_and_search(product):
         # Step 2: Perform new scraping if necessary
         shared_image_list = []
         websites = {
-            # Your websites dictionary
+            "Backcountry": {
+                "websiteName": "Backcountry",
+                "logo": "https://content.backcountry.com/images/brand/bcs_logo.png",
+                "url": "https://www.backcountry.com/"
+            },
+            "Rei": {
+                "websiteName": "Rei",
+                "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc.-Logo.wine.png",
+                "url": "https://www.rei.com/"
+            },
+            "Public Lands": {
+                "websiteName": "Public Lands",
+                "logo": "https://www.pghnorthchamber.com/wp-content/uploads/2021/07/Public-Lands-By-DSG.png",
+                "url": "https://www.publiclands.com/"
+            },
+            "Outdoor Gear Exchange": {
+                "websiteName": "Outdoor Gear Exchange",
+                "logo": "https://blisterreview.com/wp-content/uploads/2018/11/OGE-horiz-thumbnail-1.png",
+                "url": "https://www.gearx.com/"
+            },
+            "Steep and Cheap": {
+                "websiteName": "Steep and Cheap",
+                "logo": "https://static.rakuten.com/img/store/11019/steepandcheap-logo-fullcolor-11019@4x.png",
+                "url": "https://www.steepandcheap.com/"
+            },
         }
 
         app.logger.info("Starting web scraping with ThreadPoolExecutor")
@@ -151,7 +166,7 @@ def scrape_and_search(product):
                     app.logger.warning(f"Search task timed out for {site_name}")
                     yield json.dumps({"status": f"Search task timed out for {site_name}"}) + "\n"
                 except Exception as e:
-                    app.logger.error(f"Error during search for {site_name}: {e}")
+                    app.logger.error(f"Error during search for {site_name}: {e}", exc_info=True)
                     yield json.dumps({"status": f"Error during search for {site_name}: {e}"}) + "\n"
 
         # Step 3: Finalize results
@@ -160,9 +175,10 @@ def scrape_and_search(product):
             app.logger.warning("No results found after scraping")
             yield json.dumps({"status": "No results found, returning error"}) + "\n"
             return
+
         results = filter_results_by_similarity(sorted(
             results,
-            key=lambda x: float('inf') if float(x['discountedPrice']) == 0 else float(x['discountedPrice'])
+            key=lambda x: float('inf') if float(x.get('discountedPrice', 0)) == 0 else float(x.get('discountedPrice', 0))
         ))
 
         discounts = [float(item['discount']) for item in results if item.get('discount')]
@@ -194,7 +210,7 @@ def scrape_and_search(product):
             app.logger.info("Database commit successful")
         except IntegrityError as e:
             db.session.rollback()
-            app.logger.error(f"Database commit failed: {e}")
+            app.logger.error(f"Database commit failed: {e}", exc_info=True)
             yield json.dumps({"status": f"Database commit failed: {e}"}) + "\n"
 
         # Final step: Send the complete result
@@ -204,7 +220,7 @@ def scrape_and_search(product):
     except BrokenPipeError:
         app.logger.warning("Client disconnected. Scraping terminated early.")
     except Exception as e:
-        app.logger.error(f"Unexpected error in scrape_and_search: {e}")
+        app.logger.error(f"Unexpected error in scrape_and_search: {e}", exc_info=True)
         yield json.dumps({"status": f"Unexpected error: {e}"}) + "\n"
 
 
