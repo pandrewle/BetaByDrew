@@ -61,7 +61,7 @@ class Browser:
 
             # Use environment variables provided by Heroku buildpacks
             chrome_bin_path = os.getenv("GOOGLE_CHROME_BIN", "/usr/bin/google-chrome")
-            chromedriver_path = os.getenv("CHROMEDRIVER_PATH", "/usr/local/bin/chromedriver")
+            chromedriver_path = os.getenv("CHROMEDRIVER_PATH", "./.chromedriver")  # Adjusted path
 
             options.binary_location = chrome_bin_path
             logger.debug(f"Chrome binary location set to: {chrome_bin_path}")
