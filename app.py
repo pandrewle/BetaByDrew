@@ -13,6 +13,9 @@ from dotenv import load_dotenv
 import os
 import json
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -21,6 +24,15 @@ url = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_DATABASE_URI'] = url
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+
+# Optionally, add a file handler (logs will be stored in app.log)
+file_handler = RotatingFileHandler('app.log', maxBytes=1000000, backupCount=3)
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
+app.logger.addHandler(file_handler)
 
 
 class ProductSearch(db.Model):
@@ -40,9 +52,11 @@ with app.app_context():
 
 
 def search_website(websiteName, logo, website_url, product, shared_image_list):
+    app.logger.info(f"Starting search on {websiteName} for product: {product}")
     site = Website(websiteName, logo, website_url, shared_image_list)
     try:
         site.Search(product)
+        app.logger.info(f"Search completed on {websiteName}")
         return {
             "websiteName": site.websiteName,
             "product": site.productName,
@@ -54,15 +68,24 @@ def search_website(websiteName, logo, website_url, product, shared_image_list):
             "productImages": site.productImages,
             "productSizes": site.sizes
         }
+    except Exception as e:
+        app.logger.error(f"Error in search_website for {websiteName}: {e}")
+        return {
+            "websiteName": websiteName,
+            "error": str(e)
+        }
     finally:
         site.close()
+        app.logger.info(f"Closed site for {websiteName}")
 
 
 def scrape_and_search(product):
-    # noinspection PyGlobalUndefined
     global cached_product
     try:
+        app.logger.info(f"Starting scrape_and_search for product: {product}")
+
         # Step 1: Search the database for cached results
+        app.logger.info("Searching database for cached results")
         yield json.dumps({"status": "Searching database for cached results"}) + "\n"
 
         query = text("""SELECT product, similarity(product, :product) AS sim_score, result, discount, last_searched
@@ -74,6 +97,7 @@ def scrape_and_search(product):
         result = db.engine.execute(query, {'product': product}).fetchone()
 
         if result:
+            app.logger.info(f"Found cached result for product: {result['product']}")
             cached_product = result['product']
             cached_result_json = result['result']
             cached_last_searched = result['last_searched']
@@ -83,47 +107,26 @@ def scrape_and_search(product):
 
             # Check if cached result is still valid
             if datetime.now(timezone.utc) - cached_last_searched <= timedelta(days=1):
+                app.logger.info("Using cached result")
                 results = json.loads(cached_result_json)
                 yield json.dumps({"status": "Using cached result", "results": results}) + "\n"
                 return
             else:
+                app.logger.info("Cached result expired, performing new search")
                 yield json.dumps({"status": "Cached result expired, performing new search"}) + "\n"
                 update_existing = True
         else:
+            app.logger.info("No cached result found, performing new search")
             yield json.dumps({"status": "No cached result, performing new search"}) + "\n"
             update_existing = False
 
         # Step 2: Perform new scraping if necessary
         shared_image_list = []
         websites = {
-            "Backcountry": {
-                "websiteName": "Backcountry",
-                "logo": "https://content.backcountry.com/images/brand/bcs_logo.png",
-                "url": "https://www.backcountry.com/"
-            },
-            "Rei": {
-                "websiteName": "Rei",
-                "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc"
-                        ".-Logo.wine.png",
-                "url": "https://www.rei.com/"
-            },
-            "Public Lands": {
-                "websiteName": "Public Lands",
-                "logo": "https://www.pghnorthchamber.com/wp-content/uploads/2021/07/Public-Lands-By-DSG.png",
-                "url": "https://www.publiclands.com/"
-            },
-            "Outdoor Gear Exchange": {
-                "websiteName": "Outdoor Gear Exchange",
-                "logo": "https://blisterreview.com/wp-content/uploads/2018/11/OGE-horiz-thumbnail-1.png",
-                "url": "https://www.gearx.com/"
-            },
-            "Steep and Cheap": {
-                "websiteName": "Steep and Cheap",
-                "logo": "https://static.rakuten.com/img/store/11019/steepandcheap-logo-fullcolor-11019@4x.png",
-                "url": "https://www.steepandcheap.com/"
-            },
+            # Your websites dictionary
         }
 
+        app.logger.info("Starting web scraping with ThreadPoolExecutor")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future_to_site = {
                 executor.submit(
@@ -138,58 +141,72 @@ def scrape_and_search(product):
 
             results = []
             for future in concurrent.futures.as_completed(future_to_site):
+                site_name = future_to_site[future]
                 try:
                     result = future.result(timeout=15)
                     results.append(result)
-                    # Yield progress update for each website
-                    yield json.dumps({"status": f"Completed search for {result['website']}", "result": result}) + "\n"
+                    app.logger.info(f"Completed search for {result['websiteName']}")
+                    yield json.dumps({"status": f"Completed search for {result['websiteName']}", "result": result}) + "\n"
                 except concurrent.futures.TimeoutError:
-                    yield json.dumps({"status": f"Search task timed out for one of the websites"}) + "\n"
+                    app.logger.warning(f"Search task timed out for {site_name}")
+                    yield json.dumps({"status": f"Search task timed out for {site_name}"}) + "\n"
                 except Exception as e:
-                    yield json.dumps({"status": f"Error during search: {e}"}) + "\n"
+                    app.logger.error(f"Error during search for {site_name}: {e}")
+                    yield json.dumps({"status": f"Error during search for {site_name}: {e}"}) + "\n"
 
         # Step 3: Finalize results
+        app.logger.info("Finalizing results")
         results = filter_results_by_similarity(sorted(
             results,
             key=lambda x: float('inf') if float(x['discountedPrice']) == 0 else float(x['discountedPrice'])
         ))
 
         if not results:
+            app.logger.warning("No results found after scraping")
             yield json.dumps({"status": "No results found, returning error"}) + "\n"
             return
 
         discounts = [float(item['discount']) for item in results if item.get('discount')]
         if discounts:
             max_discount = max(discounts)
+            app.logger.info(f"Max discount found: {max_discount}")
         else:
-            max_discount = None  # or handle this case as needed
+            max_discount = None
+            app.logger.warning("No valid discounts found in results")
 
         # Convert results to JSON string for storage
         results_json = json.dumps(results)
 
         if update_existing:
+            app.logger.info("Updating existing cached result in the database")
             ProductSearch.query.filter_by(product=cached_product).update({
                 "result": results_json,
                 "discount": max_discount,
                 "last_searched": datetime.now(timezone.utc)
             })
         else:
+            app.logger.info("Adding new product search result to the database")
             new_result = ProductSearch(product=product, result=results_json, discount=max_discount,
-                                       last_searched=datetime.now(timezone.utc)
-                                       )
+                                       last_searched=datetime.now(timezone.utc))
             db.session.add(new_result)
 
         try:
             db.session.commit()
+            app.logger.info("Database commit successful")
         except IntegrityError as e:
             db.session.rollback()
+            app.logger.error(f"Database commit failed: {e}")
             yield json.dumps({"status": f"Database commit failed: {e}"}) + "\n"
 
         # Final step: Send the complete result
+        app.logger.info("Search complete, sending results")
         yield json.dumps({"status": "Search complete", "results": results}) + "\n"
 
     except BrokenPipeError:
-        print("Client disconnected. Scraping terminated early.")
+        app.logger.warning("Client disconnected. Scraping terminated early.")
+    except Exception as e:
+        app.logger.error(f"Unexpected error in scrape_and_search: {e}")
+        yield json.dumps({"status": f"Unexpected error: {e}"}) + "\n"
 
 
 @app.route('/search', methods=['POST'])

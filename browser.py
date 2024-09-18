@@ -12,6 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
+import os
 from webdriver_manager.chrome import ChromeDriverManager
 
 
@@ -35,7 +36,14 @@ class Browser:
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
-        service = ChromeService(executable_path=ChromeDriverManager().install())
+        # Get Chrome binary and driver path from environment variables
+        chrome_bin_path = os.getenv("GOOGLE_CHROME_BIN", "/usr/bin/google-chrome")
+        chromedriver_path = os.getenv("CHROMEDRIVER_PATH", "/usr/local/bin/chromedriver")
+
+        options.binary_location = chrome_bin_path
+
+        # Set ChromeDriver service
+        service = ChromeService(executable_path=chromedriver_path)
         self.driver = webdriver.Chrome(service=service, options=options)
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         self.driver.get(url)
