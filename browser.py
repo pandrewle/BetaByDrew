@@ -52,6 +52,7 @@ class Browser:
             options.add_argument('--no-sandbox')
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument("--incognito")
+            options.add_argument("--remote-debugging-pipe")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
             options.add_argument("user-agent=some_user_agent")
