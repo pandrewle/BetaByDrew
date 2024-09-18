@@ -1,5 +1,4 @@
 import logging
-import os
 import re
 import time
 from difflib import get_close_matches
@@ -26,7 +25,7 @@ logger.setLevel(logging.DEBUG)  # Set to DEBUG for more detailed logs
 
 # Create a StreamHandler to output logs to stdout
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)  # Set to DEBUG for more detailed logs
+stream_handler.setLevel(logging.DEBUG)  # Changed from INFO to DEBUG
 
 # Define a logging format
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
