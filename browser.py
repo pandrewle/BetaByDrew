@@ -46,14 +46,13 @@ class Browser:
         try:
             options = webdriver.ChromeOptions()
             options.add_argument('--no-sandbox')
-            options.add_argument("--headless=new")
+            # options.add_argument("--headless=new")
             options.add_argument('--ignore-certificate-errors')
             options.add_argument('--disable-gpu')
             options.add_argument("--window-size=1920,1080")
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
-            options.add_argument("--incognito")
-            options.add_argument("--remote-debugging-port=9222")
+            # options.add_argument("--incognito")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
             options.add_argument("user-agent=some_user_agent")
@@ -62,12 +61,12 @@ class Browser:
             options.add_experimental_option("useAutomationExtension", False)
 
             # Use environment variables provided by Heroku buildpacks
-            chrome_bin_path = os.environ.get("GOOGLE_CHROME_BIN")
-            chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
+            # chrome_bin_path = os.environ.get("GOOGLE_CHROME_BIN")
+            # chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
 
-            options.binary_location = chrome_bin_path
-            logger.debug(f"Chrome binary location set to: {chrome_bin_path}")
-            logger.debug(f"Chromedriver path set to: {chromedriver_path}")
+            # options.binary_location = chrome_bin_path
+            # logger.debug(f"Chrome binary location set to: {chrome_bin_path}")
+            # logger.debug(f"Chromedriver path set to: {chromedriver_path}")
 
             # service = ChromeService(executable_path=chromedriver_path)
             # logger.debug("Setting up Chrome service with webdriver_manager")
