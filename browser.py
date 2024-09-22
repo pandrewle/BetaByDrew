@@ -53,6 +53,7 @@ class Browser:
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument("--incognito")
+            options.add_argument("--disable-http2")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
             options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
@@ -93,6 +94,9 @@ class Browser:
         max_retries = 3
         for attempt in range(max_retries):
             try:
+                self.driver.delete_all_cookies()
+                self.driver.execute_script("window.localStorage.clear();")
+                self.driver.execute_script("window.sessionStorage.clear();")
                 time.sleep(3)
                 logger.info("In Search function currently, " + self.driver.current_url)
                 body_test = self.wait.until(
