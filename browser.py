@@ -92,6 +92,11 @@ class Browser:
         max_retries = 3
         for attempt in range(max_retries):
             try:
+                logger.info("In Search function currently, " + self.driver.current_url)
+                body_test = self.wait.until(
+                    ec.presence_of_element_located((By.XPATH, '/html/body'))
+                )
+                logger.info("Body HTML: " + body_test.text)
                 search_textbox = self.wait.until(
                     ec.presence_of_element_located((By.XPATH, '//input[contains(@placeholder, "Search")]'))
                 )
