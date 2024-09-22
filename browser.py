@@ -12,13 +12,14 @@ from selenium.common.exceptions import (
     TimeoutException,
     ElementNotInteractableException
 )
-from selenium.webdriver import ActionChains
-from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver import ActionChains, Proxy
+# from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.proxy import ProxyType
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -47,14 +48,14 @@ class Browser:
             options = webdriver.ChromeOptions()
             options.add_argument('--no-sandbox')
             options.add_argument("--headless=new")
-            options.add_argument('--ignore-certificate-errors')
             options.add_argument('--disable-gpu')
             options.add_argument("--window-size=1920,1080")
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
-            # options.add_argument("--incognito")
+            options.add_argument("--incognito")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
+            options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
             options.add_argument("user-agent=some_user_agent")
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
