@@ -92,6 +92,7 @@ class Browser:
         max_retries = 3
         for attempt in range(max_retries):
             try:
+                time.sleep(3)
                 logger.info("In Search function currently, " + self.driver.current_url)
                 body_test = self.wait.until(
                     ec.presence_of_element_located((By.XPATH, '/html/body'))

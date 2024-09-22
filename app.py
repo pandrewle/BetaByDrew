@@ -117,7 +117,7 @@ def scrape_and_search(product):
             "Backcountry": {
                 "websiteName": "Backcountry",
                 "logo": "https://content.backcountry.com/images/brand/bcs_logo.png",
-                "url": "https://www.backcountry.com/"
+                "url": "https://www.google.com/"
             },
             # "Rei": {
             #     "websiteName": "Rei",
