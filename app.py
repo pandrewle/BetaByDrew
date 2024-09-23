@@ -114,16 +114,16 @@ def scrape_and_search(product):
         # Step 2: Perform new scraping if necessary
         shared_image_list = []
         websites = {
-            # "Backcountry": {
-            #     "websiteName": "Backcountry",
-            #     "logo": "https://content.backcountry.com/images/brand/bcs_logo.png",
-            #     "url": "https://www.backcountry.com/"
-            # },
-            "Rei": {
-                "websiteName": "Rei",
-                "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc.-Logo.wine.png",
-                "url": "https://www.rei.com/"
+            "Backcountry": {
+                "websiteName": "Backcountry",
+                "logo": "https://content.backcountry.com/images/brand/bcs_logo.png",
+                "url": "https://www.backcountry.com/"
             },
+            # "Rei": {
+            #     "websiteName": "Rei",
+            #     "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc.-Logo.wine.png",
+            #     "url": "https://www.rei.com/"
+            # },
             # "Public Lands": {
             #     "websiteName": "Public Lands",
             #     "logo": "https://www.pghnorthchamber.com/wp-content/uploads/2021/07/Public-Lands-By-DSG.png",

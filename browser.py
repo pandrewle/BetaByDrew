@@ -13,7 +13,7 @@ from selenium.common.exceptions import (
     ElementNotInteractableException
 )
 from selenium.webdriver import ActionChains, Proxy
-# from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.proxy import ProxyType
@@ -47,34 +47,35 @@ class Browser:
         try:
             options = webdriver.ChromeOptions()
             options.add_argument('--no-sandbox')
-            options.add_argument("--headless=new")
+            options.add_argument("--headless")
             options.add_argument('--disable-gpu')
             options.add_argument("--window-size=1920,1080")
             options.add_argument('--ignore-certificate-errors')
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument("--incognito")
+            options.add_argument("--disable-software-rasterizer")
             # options.add_argument("--disable-http2")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
-            options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
+            # options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
             options.add_argument("user-agent=some_user_agent")
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option("useAutomationExtension", False)
 
             # Use environment variables provided by Heroku buildpacks
-            # chrome_bin_path = os.environ.get("GOOGLE_CHROME_BIN")
-            # chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
+            chrome_bin_path = os.environ.get("GOOGLE_CHROME_BIN")
+            chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
 
-            # options.binary_location = chrome_bin_path
-            # logger.debug(f"Chrome binary location set to: {chrome_bin_path}")
-            # logger.debug(f"Chromedriver path set to: {chromedriver_path}")
+            options.binary_location = chrome_bin_path
+            logger.debug(f"Chrome binary location set to: {chrome_bin_path}")
+            logger.debug(f"Chromedriver path set to: {chromedriver_path}")
 
-            # service = ChromeService(executable_path=chromedriver_path)
+            service = ChromeService(executable_path=chromedriver_path)
             # logger.debug("Setting up Chrome service with webdriver_manager")
 
-            self.driver = webdriver.Chrome(options=options)
+            self.driver = webdriver.Chrome(service=service, options=options)
             logger.debug("Initializing WebDriver with Chrome options")
 
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
