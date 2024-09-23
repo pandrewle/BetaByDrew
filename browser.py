@@ -49,17 +49,18 @@ class Browser:
             options.add_argument('--no-sandbox')
             options.add_argument("--headless")
             options.add_argument('--disable-gpu')
-            options.add_argument("--window-size=1920,1080")
+            # options.add_argument("--window-size=1920,1080")
             options.add_argument('--ignore-certificate-errors')
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument("--incognito")
-            options.add_argument("--disable-software-rasterizer")
             # options.add_argument("--disable-http2")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
             # options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
-            options.add_argument("user-agent=some_user_agent")
+            options.add_argument(
+                '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) '
+                'Chrome/73.0.3683.86 Safari/537.36')
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option("useAutomationExtension", False)
