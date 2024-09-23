@@ -12,6 +12,7 @@ from selenium.common.exceptions import (
     TimeoutException,
     ElementNotInteractableException
 )
+from selenium_stealth import stealth
 from selenium.webdriver import ActionChains, Proxy
 # from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
@@ -74,6 +75,14 @@ class Browser:
             # logger.debug("Setting up Chrome service with webdriver_manager")
 
             self.driver = webdriver.Chrome(options=options)
+            stealth(self.driver,
+                    languages=["en-US", "en"],
+                    vendor="Google Inc.",
+                    platform="Win32",
+                    webgl_vendor="Intel Inc.",
+                    renderer="Intel Iris OpenGL Engine",
+                    fix_hairline=True,
+                    )
             logger.debug("Initializing WebDriver with Chrome options")
 
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -95,8 +104,6 @@ class Browser:
         for attempt in range(max_retries):
             try:
                 self.driver.delete_all_cookies()
-                self.driver.execute_script("window.localStorage.clear();")
-                self.driver.execute_script("window.sessionStorage.clear();")
                 time.sleep(3)
                 logger.info("In Search function currently, " + self.driver.current_url)
                 body_test = self.wait.until(
