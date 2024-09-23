@@ -12,7 +12,6 @@ from selenium.common.exceptions import (
     TimeoutException,
     ElementNotInteractableException
 )
-from selenium_stealth import stealth
 from selenium.webdriver import ActionChains, Proxy
 # from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
@@ -51,10 +50,11 @@ class Browser:
             options.add_argument("--headless=new")
             options.add_argument('--disable-gpu')
             options.add_argument("--window-size=1920,1080")
+            options.add_argument('--ignore-certificate-errors')
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument("--incognito")
-            # options.add_argument("--disable-http2")
+            options.add_argument("--disable-http2")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
             options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
@@ -75,14 +75,6 @@ class Browser:
             # logger.debug("Setting up Chrome service with webdriver_manager")
 
             self.driver = webdriver.Chrome(options=options)
-            stealth(self.driver,
-                    languages=["en-US", "en"],
-                    vendor="Google Inc.",
-                    platform="Win32",
-                    webgl_vendor="Intel Inc.",
-                    renderer="Intel Iris OpenGL Engine",
-                    fix_hairline=True,
-                    )
             logger.debug("Initializing WebDriver with Chrome options")
 
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
