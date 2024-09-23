@@ -54,7 +54,7 @@ class Browser:
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument("--incognito")
-            options.add_argument("--disable-http2")
+            # options.add_argument("--disable-http2")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
             options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
