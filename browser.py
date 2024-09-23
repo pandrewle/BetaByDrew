@@ -58,9 +58,6 @@ class Browser:
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
             # options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
-            options.add_argument(
-                '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) '
-                'Chrome/73.0.3683.86 Safari/537.36')
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option("useAutomationExtension", False)
@@ -99,6 +96,7 @@ class Browser:
             try:
                 self.driver.delete_all_cookies()
                 time.sleep(3)
+                self.driver.refresh()
                 logger.info("In Search function currently, " + self.driver.current_url)
                 body_test = self.wait.until(
                     ec.presence_of_element_located((By.XPATH, '/html/body'))

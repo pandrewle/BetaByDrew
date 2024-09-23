@@ -119,11 +119,11 @@ def scrape_and_search(product):
                 "logo": "https://content.backcountry.com/images/brand/bcs_logo.png",
                 "url": "https://www.backcountry.com/"
             },
-            # "Rei": {
-            #     "websiteName": "Rei",
-            #     "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc.-Logo.wine.png",
-            #     "url": "https://www.rei.com/"
-            # },
+            "Rei": {
+                "websiteName": "Rei",
+                "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc.-Logo.wine.png",
+                "url": "https://www.google.com/"
+            },
             # "Public Lands": {
             #     "websiteName": "Public Lands",
             #     "logo": "https://www.pghnorthchamber.com/wp-content/uploads/2021/07/Public-Lands-By-DSG.png",
@@ -142,7 +142,7 @@ def scrape_and_search(product):
         }
 
         app.logger.info("Starting web scraping with ThreadPoolExecutor")
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future_to_site = {
                 executor.submit(
                     search_website,
