@@ -10,7 +10,8 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     StaleElementReferenceException,
     TimeoutException,
-    ElementNotInteractableException
+    ElementNotInteractableException,
+    WebDriverException
 )
 from selenium.webdriver import ActionChains, Proxy
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -19,15 +20,16 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.proxy import ProxyType
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
+
 # from webdriver_manager.chrome import ChromeDriverManager
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # Set to DEBUG for more detailed logs
+logger.setLevel(logging.INFO)  # Set to DEBUG for more detailed logs
 
 # Create a StreamHandler to output logs to stdout
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.DEBUG)  # Capture all logs
+stream_handler.setLevel(logging.INFO)  # Capture all logs
 
 # Define a logging format
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -95,8 +97,6 @@ class Browser:
         for attempt in range(max_retries):
             try:
                 self.driver.delete_all_cookies()
-                # time.sleep(3)
-                self.driver.refresh()
                 logger.info("In Search function currently, " + self.driver.current_url)
                 body_test = self.wait.until(
                     ec.presence_of_element_located((By.XPATH, '/html/body'))
@@ -124,21 +124,21 @@ class Browser:
                 search_button.send_keys(Keys.RETURN)
                 break  # Exit loop if successful
 
-            except StaleElementReferenceException:
+            except (StaleElementReferenceException, ElementNotInteractableException) as e:
                 if attempt < max_retries - 1:
+                    logger.warning(f"Retry due to stale element or not interactable: {e}")
                     time.sleep(1)  # Wait before retrying
                 else:
-                    print("Failed after several attempts due to stale element.")
+                    logger.error(f"Failed after several attempts: {e}")
                     raise
-            except ElementNotInteractableException:
-                if attempt < max_retries - 1:
-                    time.sleep(1)  # Wait before retrying
+            except WebDriverException as e:
+                if 'HTTP2' in str(e) and attempt < max_retries - 1:
+                    logger.warning(f"HTTP2 error detected, retrying: {e}")
+                    self.driver.refresh()
+                    time.sleep(3)  # Wait before retrying
                 else:
-                    print("Failed after several attempts due to stale element.")
+                    logger.error(f"HTTP2 error or other WebDriver exception: {e}")
                     raise
-            except Exception as e:
-                print(f"An error occurred in searching: {e}")
-                raise
 
     @staticmethod
     def is_product_page(url):
@@ -195,7 +195,7 @@ class Browser:
 
         for div_xpath in div_xpath_candidates:
             try:
-                WebDriverWait(self.driver, 1).until(
+                WebDriverWait(self.driver, 5).until(
                     ec.presence_of_all_elements_located((By.XPATH, div_xpath))
                 )
                 div_elements = self.driver.find_elements(By.XPATH, div_xpath)
