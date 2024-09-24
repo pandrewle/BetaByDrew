@@ -95,7 +95,7 @@ class Browser:
         for attempt in range(max_retries):
             try:
                 self.driver.delete_all_cookies()
-                time.sleep(3)
+                # time.sleep(3)
                 self.driver.refresh()
                 logger.info("In Search function currently, " + self.driver.current_url)
                 body_test = self.wait.until(

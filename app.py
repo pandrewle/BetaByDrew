@@ -122,23 +122,23 @@ def scrape_and_search(product):
             "Rei": {
                 "websiteName": "Rei",
                 "logo": "https://download.logo.wine/logo/Recreational_Equipment%2C_Inc./Recreational_Equipment%2C_Inc.-Logo.wine.png",
-                "url": "https://www.google.com/"
+                "url": "https://www.rei.com/"
             },
-            # "Public Lands": {
-            #     "websiteName": "Public Lands",
-            #     "logo": "https://www.pghnorthchamber.com/wp-content/uploads/2021/07/Public-Lands-By-DSG.png",
-            #     "url": "https://www.publiclands.com/"
-            # },
-            # "Outdoor Gear Exchange": {
-            #     "websiteName": "Outdoor Gear Exchange",
-            #     "logo": "https://blisterreview.com/wp-content/uploads/2018/11/OGE-horiz-thumbnail-1.png",
-            #     "url": "https://www.gearx.com/"
-            # },
-            # "Steep and Cheap": {
-            #     "websiteName": "Steep and Cheap",
-            #     "logo": "https://static.rakuten.com/img/store/11019/steepandcheap-logo-fullcolor-11019@4x.png",
-            #     "url": "https://www.steepandcheap.com/"
-            # },
+            "Public Lands": {
+                "websiteName": "Public Lands",
+                "logo": "https://www.pghnorthchamber.com/wp-content/uploads/2021/07/Public-Lands-By-DSG.png",
+                "url": "https://www.publiclands.com/"
+            },
+            "Outdoor Gear Exchange": {
+                "websiteName": "Outdoor Gear Exchange",
+                "logo": "https://blisterreview.com/wp-content/uploads/2018/11/OGE-horiz-thumbnail-1.png",
+                "url": "https://www.gearx.com/"
+            },
+            "Steep and Cheap": {
+                "websiteName": "Steep and Cheap",
+                "logo": "https://static.rakuten.com/img/store/11019/steepandcheap-logo-fullcolor-11019@4x.png",
+                "url": "https://www.steepandcheap.com/"
+            },
         }
 
         app.logger.info("Starting web scraping with ThreadPoolExecutor")
