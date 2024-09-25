@@ -11,25 +11,21 @@ from selenium.common.exceptions import (
     StaleElementReferenceException,
     TimeoutException,
     ElementNotInteractableException,
-    WebDriverException
 )
 from selenium.webdriver import ActionChains, Proxy
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.proxy import ProxyType
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-# from webdriver_manager.chrome import ChromeDriverManager
-
 # Configure logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)  # Set to DEBUG for more detailed logs
+logger.setLevel(logging.DEBUG)  # Set to DEBUG for more detailed logs
 
 # Create a StreamHandler to output logs to stdout
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)  # Capture all logs
+stream_handler.setLevel(logging.DEBUG)  # Capture all logs
 
 # Define a logging format
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -49,17 +45,15 @@ class Browser:
         try:
             options = webdriver.ChromeOptions()
             options.add_argument('--no-sandbox')
-            options.add_argument("--headless")
+            options.add_argument("--headless=new")
             options.add_argument('--disable-gpu')
-            # options.add_argument("--window-size=1920,1080")
             options.add_argument('--ignore-certificate-errors')
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument("--incognito")
-            # options.add_argument("--disable-http2")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
-            # options.proxy = Proxy({'proxyType': ProxyType.MANUAL, 'httpProxy': 'http.proxy:1234'})
+            options.add_argument("user-agent=some_user_agent")  # added this and it made each website load properly
             options.add_argument("--disable-blink-features=AutomationControlled")
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option("useAutomationExtension", False)
@@ -73,9 +67,8 @@ class Browser:
             logger.debug(f"Chromedriver path set to: {chromedriver_path}")
 
             service = ChromeService(executable_path=chromedriver_path)
-            # logger.debug("Setting up Chrome service with webdriver_manager")
 
-            self.driver = webdriver.Chrome(service=service, options=options)
+            self.driver = webdriver.Chrome(options=options)
             logger.debug("Initializing WebDriver with Chrome options")
 
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -96,12 +89,11 @@ class Browser:
         max_retries = 3
         for attempt in range(max_retries):
             try:
-                self.driver.delete_all_cookies()
                 logger.info("In Search function currently, " + self.driver.current_url)
                 body_test = self.wait.until(
                     ec.presence_of_element_located((By.XPATH, '/html/body'))
                 )
-                logger.info("Body HTML: " + body_test.text)
+                logger.info("Body HTML: " + "\n".join(body_test.text.splitlines()[:5]))
                 search_textbox = self.wait.until(
                     ec.presence_of_element_located((By.XPATH, '//input[contains(@placeholder, "Search")]'))
                 )
@@ -124,20 +116,24 @@ class Browser:
                 search_button.send_keys(Keys.RETURN)
                 break  # Exit loop if successful
 
-            except (StaleElementReferenceException, ElementNotInteractableException) as e:
+            except StaleElementReferenceException:
                 if attempt < max_retries - 1:
-                    logger.warning(f"Retry due to stale element or not interactable: {e}")
                     time.sleep(1)  # Wait before retrying
                 else:
-                    logger.error(f"Failed after several attempts: {e}")
+                    print("Failed after several attempts due to stale element.")
                     raise
-            except WebDriverException as e:
-                if 'HTTP2' in str(e) and attempt < max_retries - 1:
-                    logger.warning(f"HTTP2 error detected, retrying: {e}")
-                    self.driver.refresh()
-                    time.sleep(3)  # Wait before retrying
+            except ElementNotInteractableException:
+                if attempt < max_retries - 1:
+                    time.sleep(1)  # Wait before retrying
                 else:
-                    logger.error(f"HTTP2 error or other WebDriver exception: {e}")
+                    print("Failed after several attempts due to stale element.")
+                    raise
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    self.driver.refresh()
+                    time.sleep(1)  # Wait before retrying
+                else:
+                    print(f"An error occurred in searching: {e}")
                     raise
 
     @staticmethod
