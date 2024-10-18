@@ -142,7 +142,7 @@ def scrape_and_search(product):
         }
 
         app.logger.info("Starting web scraping with ThreadPoolExecutor")
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future_to_site = {
                 executor.submit(
                     search_website,

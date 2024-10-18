@@ -68,12 +68,11 @@ class Browser:
 
             service = ChromeService(executable_path=chromedriver_path)
 
-            self.driver = webdriver.Chrome(options=options)
+            self.driver = webdriver.Chrome(service=service, options=options)
             logger.debug("Initializing WebDriver with Chrome options")
 
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
             logger.debug("Executing script to hide webdriver property")
-
             logger.info(f"Navigating to URL: {url}")
             self.driver.get(url)
             self.wait = WebDriverWait(self.driver, 10)  # Increase explicit wait time
@@ -97,41 +96,37 @@ class Browser:
                 search_textbox = self.wait.until(
                     ec.presence_of_element_located((By.XPATH, '//input[contains(@placeholder, "Search")]'))
                 )
-                # Wait until the element is interactable (visible and enabled)
                 self.wait.until(
                     ec.element_to_be_clickable((By.XPATH, '//input[contains(@placeholder, "Search")]'))
                 )
-                # Now, move to the element and click
                 self.action.move_to_element(search_textbox).click().perform()
                 # Wait until the textbox is ready to accept input
                 self.wait.until(
                     ec.element_to_be_clickable((By.XPATH, '//input[contains(@placeholder, "Search")]'))
                 )
-                # Send the product name to the search box
                 search_textbox.send_keys(self.product + ' climbing')
-                # Find and click the search button (or press Enter)
                 search_button = self.wait.until(
                     ec.element_to_be_clickable((By.XPATH, '//input[contains(@placeholder, "Search")]'))
                 )
                 search_button.send_keys(Keys.RETURN)
-                break  # Exit loop if successful
+                break
 
             except StaleElementReferenceException:
                 if attempt < max_retries - 1:
-                    time.sleep(1)  # Wait before retrying
+                    time.sleep(1)
                 else:
                     print("Failed after several attempts due to stale element.")
                     raise
             except ElementNotInteractableException:
                 if attempt < max_retries - 1:
-                    time.sleep(1)  # Wait before retrying
+                    time.sleep(1)
                 else:
                     print("Failed after several attempts due to stale element.")
                     raise
             except Exception as e:
                 if attempt < max_retries - 1:
                     self.driver.refresh()
-                    time.sleep(1)  # Wait before retrying
+                    time.sleep(1)
                 else:
                     print(f"An error occurred in searching: {e}")
                     raise
@@ -170,11 +165,8 @@ class Browser:
 
     @staticmethod
     def clean_product_string(product):
-        # Replace multiple spaces with a single space
         product = re.sub(r'\s+', ' ', product)
-        # Replace single spaces with hyphens
         product = product.replace(' ', '-')
-        # Replace multiple hyphens with a single hyphen
         product = re.sub(r'-+', '-', product)
         # Optionally, remove special characters
         product = re.sub(r'[\'"]+', '', product)  # Removes apostrophes and quotes
@@ -206,7 +198,7 @@ class Browser:
 
     def goToProductPage(self):
         div_elements = self.xPathProductName()
-        max_retries = 3  # Number of times to retry in case of failure
+        max_retries = 3
 
         for attempt in range(max_retries):
             try:
@@ -226,7 +218,6 @@ class Browser:
 
                     hrefs = [link.get_attribute('href') for link in all_links]
 
-                    # Find the best match for the product
                     best_matches = get_close_matches(cleaned_product, hrefs, n=5, cutoff=0.4)
 
                     if best_matches:
@@ -248,11 +239,11 @@ class Browser:
                 if attempt < max_retries - 1:
                     time.sleep(1)  # Wait before retrying
                 else:
-                    raise  # Raise exception if max retries reached
+                    raise
 
             except Exception as e:
                 print(f"Error in going to product page: {e}")
-                raise  # Raise the exception for any other errors
+                raise
 
     def getProductUrl(self):
         return self.driver.current_url
