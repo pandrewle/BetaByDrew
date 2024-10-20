@@ -60,16 +60,16 @@ class Browser:
             options.add_experimental_option("useAutomationExtension", False)
 
             # Use environment variables provided by Heroku buildpacks
-            chrome_bin_path = os.environ.get("GOOGLE_CHROME_BIN")
-            chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
+            # chrome_bin_path = os.environ.get("GOOGLE_CHROME_BIN")
+            # chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
+            #
+            # options.binary_location = chrome_bin_path
+            # logger.debug(f"Chrome binary location set to: {chrome_bin_path}")
+            # logger.debug(f"Chromedriver path set to: {chromedriver_path}")
+            #
+            # service = ChromeService(executable_path=chromedriver_path)
 
-            options.binary_location = chrome_bin_path
-            logger.debug(f"Chrome binary location set to: {chrome_bin_path}")
-            logger.debug(f"Chromedriver path set to: {chromedriver_path}")
-
-            service = ChromeService(executable_path=chromedriver_path)
-
-            self.driver = webdriver.Chrome(options=options, service=service)
+            self.driver = webdriver.Chrome(options=options)
             logger.debug("Initializing WebDriver with Chrome options")
 
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -88,6 +88,7 @@ class Browser:
         self.product = product
         max_retries = 3
         self.driver.refresh()
+        logger.info("Initial Search Refresh, " + self.driver.current_url)
         time.sleep(3)
         for attempt in range(max_retries):
             try:
