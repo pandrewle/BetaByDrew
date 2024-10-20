@@ -87,9 +87,6 @@ class Browser:
     def Search(self, product):
         self.product = product
         max_retries = 3
-        self.driver.refresh()
-        logger.info("Initial Search Refresh, " + self.driver.current_url)
-        time.sleep(3)
         for attempt in range(max_retries):
             try:
                 logger.info("In Search function currently, " + self.driver.current_url)
