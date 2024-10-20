@@ -45,12 +45,13 @@ class Browser:
         try:
             options = webdriver.ChromeOptions()
             options.add_argument('--no-sandbox')
-            options.add_argument("--headless=new")
+            options.add_argument("--headless")
             options.add_argument('--disable-gpu')
             options.add_argument('--ignore-certificate-errors')
             options.add_argument("--start-maximized")
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument("--incognito")
+            options.add_argument("--disable-http2")
             options.page_load_strategy = 'eager'
             options.add_argument("--disable-extensions")
             options.add_argument("user-agent=some_user_agent")  # added this and it made each website load properly
@@ -68,7 +69,7 @@ class Browser:
 
             service = ChromeService(executable_path=chromedriver_path)
 
-            self.driver = webdriver.Chrome(service=service, options=options)
+            self.driver = webdriver.Chrome(options=options, service=service)
             logger.debug("Initializing WebDriver with Chrome options")
 
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -86,8 +87,6 @@ class Browser:
     def Search(self, product):
         self.product = product
         max_retries = 3
-        self.driver.refresh()
-        time.sleep(3)
         for attempt in range(max_retries):
             try:
                 logger.info("In Search function currently, " + self.driver.current_url)
@@ -128,7 +127,7 @@ class Browser:
             except Exception as e:
                 if attempt < max_retries - 1:
                     self.driver.refresh()
-                    time.sleep(1)
+                    time.sleep(3)
                 else:
                     print(f"An error occurred in searching: {e}")
                     raise
