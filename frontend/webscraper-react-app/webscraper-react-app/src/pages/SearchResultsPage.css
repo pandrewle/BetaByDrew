@@ -1,0 +1,113 @@
+:root {
+  --primaryColor: #20201D;
+  --darkPrimary: #151513 ;
+  --secondaryColor: #f5f5f4;
+  --primaryAccent: #4B502D;
+  --secondaryAccent: #E1B40C;
+}
+
+body, html {
+  background-color: var(--primaryColor); /* Replace with your desired color */
+}
+
+.pin-spacer {
+  background-color: var(--primaryColor);
+}
+
+.pinned-container {
+  overflow: hidden;
+  background-color: var(--primaryColor);
+}
+
+.SearchResults {
+  background-color: var(--primaryColor);
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  color: var(--secondaryColor);
+}
+
+.result-item {
+  box-shadow: 0.3125rem 0.3125rem 0.9375rem rgb(0, 0, .9); /* 1px = 0.0625rem, 6px = 0.375rem */
+  background-color: var(--darkPrimary);
+}
+
+.result-item img {
+  width: 6.25rem; /* 100px / 16 = 6.25rem */
+  height: 6.25rem; /* 100px / 16 = 6.25rem */
+  object-fit: contain;
+}
+
+.results-info {
+  flex: 1;
+  padding-left: 1.25rem; /* 20px / 16 = 1.25rem */
+}
+
+.results-info h2 {
+  margin: 0;
+}
+
+.results-info p {
+  margin: 0.3125rem 0; /* 5px / 16 = 0.3125rem */
+}
+
+.results-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
+  padding-left: 1.25rem; /* 20px / 16 = 1.25rem */
+}
+
+.size-item {
+  background-color: var(--primaryColor);
+  border: 0.0625rem solid #ccc; /* 1px = 0.0625rem */
+  border-radius: 0.25rem; /* 4px / 16 = 0.25rem */
+  margin: 0.3125rem; /* 5px / 16 = 0.3125rem */
+  font-size: .875rem; /* 14px / 16 = 0.875rem */
+  transition: background 0.25s, box-shadow 0.25s;
+}
+
+.size-item:hover {
+  background-color: var(--secondaryAccent);
+  box-shadow: 0 0 0.125rem rgba(0, 0, 0, 0.75); /* 2px = 0.125rem */
+}
+
+.no-sizes {
+  color: #888;
+  font-style: italic;
+  margin: 0.3125rem;
+}
+
+@media (max-width: 768px) {
+  .result-item {
+    border-radius: 0.5rem; /* Slightly smaller border radius */
+  }
+
+  .result-item img {
+    width: 5rem; /* Smaller image size */
+    height: 5rem;
+  }
+
+  .results-info {
+    padding-left: 1rem; /* Decrease padding */
+  }
+
+  .size-item {
+    font-size: 0.8rem; /* Smaller font size for sizes */
+    padding: 0.25rem 0.5rem; /* Decrease padding */
+  }
+
+  .results-container {
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+  }
+
+}
