@@ -6,6 +6,7 @@ import Loader from "../components/Loading";
 import ImageSlider from "../components/ImageSlider";
 import ResultsCard from "../components/ResultsCard";
 import { useInfiniteLoop } from "../components/InfiniteLoop";
+import { API_BASE_URL } from "../config";
 
 function SearchResults() {
   const [isPending, setIsPending] = useState(true);
@@ -30,7 +31,7 @@ function SearchResults() {
       const fetchData = async () => {
         try {
           const response = await fetch(
-            "https://beta-by-drew-d328f6616559.herokuapp.com/search",
+            `${API_BASE_URL}/search`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },

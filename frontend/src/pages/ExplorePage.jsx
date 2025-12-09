@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import transition from "../components/PageTransitions";
+import { API_BASE_URL } from "../config";
 
 const ExploreComponent = ({ isFullPage = false }) => {
   const [exploreProducts, setExploreProducts] = useState([]);
@@ -15,7 +16,7 @@ const ExploreComponent = ({ isFullPage = false }) => {
       // console.log("Fetching products...");
       try {
         const response = await fetch(
-          `https://beta-by-drew-d328f6616559.herokuapp.com/explore?page=${section}&limit=9`
+          `${API_BASE_URL}/explore?page=${section}&limit=9`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch products");
