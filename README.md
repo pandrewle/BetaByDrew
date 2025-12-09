@@ -31,7 +31,7 @@ Beta-By-Drew/
 ### Frontend
 - **Framework**: React 18.3.1
 - **Build Tool**: Vite 5.2.0
-- **Styling**: Tailwind CSS + SASS
+- **Styling**: Tailwind CSS + SCSS
 - **Routing**: React Router v6
 - **Animations**: GSAP & Framer Motion
 
