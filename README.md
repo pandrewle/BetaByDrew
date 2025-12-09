@@ -291,7 +291,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## Author
 
-**Drew Le**
+**Andrew Le**
 GitHub: [@pandrewle](https://github.com/pandrewle)
 
 ---
